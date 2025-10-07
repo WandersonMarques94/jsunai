@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Preços de Peças</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loading-indicator">
+        <p>Carregando lista de preços...</p>
+    </div>
+
+    <header class="site-header">
+        <h1>Catálogo de Preços de Peças</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar por modelo ou peça...">
+        </div>
+
+        <button id="toggle-filters-btn">
+            Mostrar Filtros
+            <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </button>
+
+        <div id="collapsible-filters" class="collapsible-content">
+            <div class="collapsible-wrapper">
+                <div id="brand-filters" class="filter-group"></div>
+                <div id="type-filters" class="filter-group"></div>
+            </div>
+        </div>
+    </header>
+
+    <main id="lista-container"></main>
+
+    <footer class="site-footer-info">
+        <h2>NOME DA SUA EMPRESA AQUI</h2>
+        <p>Endereço: SEU ENDEREÇO COMPLETO AQUI</p>
+        <p>Telefone: SEU TELEFONE AQUI | Horário: SEU HORÁRIO DE FUNCIONAMENTO</p>
+        <p>© 2025 - Todos os direitos reservados.</p>
+    </footer>
+
+    <a href="https://wa.me/55SEUNUMERODEWHATSAPPAQUI" class="floating-button whatsapp" target="_blank" rel="noopener noreferrer">
+        <img src="whatsapp-logo.svg" alt="Contato WhatsApp" />
+    </a>
+    <a href="#" id="back-to-top" class="floating-button back-to-top" title="Voltar ao topo">
+        <svg fill="#FFFFFF" height="24px" width="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12,8.1L3.5,16.6a.998.998,0,0,0,1.4,1.4L12,10.9l7.1,7.1a.998.998,0,1,0,1.4-1.4L12,8.1z"></path></svg>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+</html>
