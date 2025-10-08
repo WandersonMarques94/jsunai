@@ -1,8 +1,27 @@
-// VERSÃO FINAL COM ORDENAÇÃO ALFABÉTICA DOS PRODUTOS
+// VERSÃO COM AUTH0
 
-const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
+// URL da planilha continua a mesma, você disse que já editou
+const urlPlanilha = 'URL_DA_SUA_PLANILHA_AQUI';
 
-// Elementos da página
+// --- CONFIGURAÇÃO DO AUTH0 ---
+const auth0Config = {
+    domain: "jsunai.us.auth0.com",
+    clientId: "SbMBiA_II_yA6qakjGUnoNMB8W4HZQsnNAdQp-__SATnkJWIW8ltNNBTsOG_ClJ1",
+    authorizationParams: {
+        redirect_uri: window.location.origin
+    }
+};
+let auth0Client = null;
+
+// --- ELEMENTOS DA PÁGINA ---
+// Elementos de autenticação
+const loginPrompt = document.getElementById('login-prompt');
+const appContent = document.getElementById('app-content');
+const btnLogin = document.getElementById('btn-login-main');
+const btnLogout = document.getElementById('btn-logout');
+const userNameEl = document.getElementById('user-name');
+
+// Elementos da aplicação original
 const loadingIndicator = document.getElementById('loading-indicator');
 const backToTopButton = document.getElementById('back-to-top');
 const searchInput = document.getElementById('searchInput');
@@ -14,13 +33,66 @@ const collapsibleFilters = document.getElementById('collapsible-filters');
 let filtroAtivoMarca = 'todas';
 let filtroAtivoTipo = 'todas';
 
-document.addEventListener('DOMContentLoaded', () => {
-    carregarDados();
-    window.addEventListener('scroll', handleScroll);
+// --- FLUXO PRINCIPAL DE AUTENTICAÇÃO ---
+window.addEventListener('load', async () => {
+    try {
+        auth0Client = await auth0.createAuth0Client(auth0Config);
+
+        // Trata o retorno do login (redirect)
+        if (location.search.includes("code=") && location.search.includes("state=")) {
+            await auth0Client.handleRedirectCallback();
+            window.history.replaceState({}, document.title, "/");
+        }
+
+        // Atualiza a UI com base no estado de login
+        await updateUI();
+
+    } catch (e) {
+        console.error("Erro na inicialização do Auth0", e);
+        loadingIndicator.innerHTML = '<p>Erro na autenticação. Recarregue a página.</p>';
+    }
 });
+
+const updateUI = async () => {
+    const isAuthenticated = await auth0Client.isAuthenticated();
+    
+    if (isAuthenticated) {
+        loginPrompt.style.display = 'none';
+        appContent.style.display = 'block';
+
+        const user = await auth0Client.getUser();
+        userNameEl.textContent = user.name || user.email;
+
+        // LOGIN BEM-SUCEDIDO: Carrega os dados da planilha
+        await carregarDados();
+        window.addEventListener('scroll', handleScroll);
+
+    } else {
+        loginPrompt.style.display = 'flex';
+        appContent.style.display = 'none';
+        loadingIndicator.style.display = 'none';
+    }
+};
+
+// --- FUNÇÕES DE LOGIN/LOGOUT ---
+btnLogin.addEventListener('click', async () => {
+    await auth0Client.loginWithRedirect();
+});
+
+btnLogout.addEventListener('click', async () => {
+    await auth0Client.logout({
+        logoutParams: {
+            returnTo: window.location.origin
+        }
+    });
+});
+
+// --- TODO O CÓDIGO ORIGINAL DA APLICAÇÃO VAI DAQUI PARA BAIXO ---
+// A única mudança é que estas funções agora só são chamadas após o login.
 
 async function carregarDados() {
     loadingIndicator.style.display = 'flex';
+    loadingIndicator.querySelector('p').textContent = 'Carregando lista de preços...';
     try {
         const response = await fetch(urlPlanilha);
         if (!response.ok) throw new Error('Erro ao buscar dados');
@@ -74,7 +146,6 @@ function renderizarPagina(itens) {
         tipos.forEach(tipo => {
             const table = document.createElement('table');
             table.dataset.tipo = tipo;
-            // A LINHA ABAIXO É A ÚNICA QUE MUDOU
             table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço (R$)</th></tr></thead><tbody>${porTipo[tipo].sort((a, b) => a.modelo.localeCompare(b.modelo)).map(item => `<tr><td>${item.modelo}</td><td>${item.detalhes}</td><td>${item.preco}</td></tr>`).join('')}</tbody>`;
             marcaContainer.appendChild(table);
         });
@@ -127,38 +198,3 @@ function aplicarTodosOsFiltros() {
         const marcaAtual = containerMarca.dataset.marca;
         let marcaTemItensVisiveis = false;
         const marcaPassaFiltro = (filtroAtivoMarca === 'todas' || marcaAtual === filtroAtivoMarca);
-        if (marcaPassaFiltro) {
-            containerMarca.querySelectorAll('table').forEach(tabelaTipo => {
-                const tipoAtual = tabelaTipo.dataset.tipo;
-                let tipoTemItensVisiveis = false;
-                const tipoPassaFiltro = (filtroAtivoTipo === 'todas' || tipoAtual === filtroAtivoTipo);
-                if (tipoPassaFiltro) {
-                    tabelaTipo.querySelectorAll('tbody tr').forEach(linha => {
-                        const textoLinha = linha.textContent.toUpperCase();
-                        if (textoLinha.includes(buscaTexto)) {
-                            linha.style.display = "";
-                            tipoTemItensVisiveis = true;
-                        } else {
-                            linha.style.display = "none";
-                        }
-                    });
-                }
-                if (tipoTemItensVisiveis) {
-                    tabelaTipo.style.display = "";
-                    marcaTemItensVisiveis = true;
-                } else {
-                    tabelaTipo.style.display = "none";
-                }
-            });
-        }
-        containerMarca.style.display = marcaTemItensVisiveis ? "" : "none";
-    });
-}
-
-function handleScroll() {
-    if (window.scrollY > 300) {
-        backToTopButton.classList.add('visible');
-    } else {
-        backToTopButton.classList.remove('visible');
-    }
-}
