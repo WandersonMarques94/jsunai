@@ -1,13 +1,22 @@
 :root {
-    --color-primary-bg: hsl(210, 10%, 98%);
-    --color-secondary-text: hsl(210, 5%, 25%);
-    --color-accent: hsl(210, 90%, 50%);
-    --color-border: hsl(210, 10%, 85%);
-    --color-header-bg: hsl(210, 10%, 20%);
-    --color-footer-bg: hsl(210, 10%, 20%);
-    --color-table-header-bg: hsl(210, 10%, 30%);
-    --color-pill-bg: hsl(210, 10%, 40%);
+    /* Cores do Cliente */
+    --client-color-primary: #724238;   /* Marrom Escuro - Para cabeçalhos, rodapé, textos principais */
+    --client-color-secondary: #cc9366; /* Laranja/Marrom Intenso - Cor de destaque, botões ativos */
+    --client-color-light: #e0c99f;     /* Bege/Creme Claro - Para fundos de blocos, linhas da tabela */
+    --client-color-text-dark: #000000; /* Preto - Para textos mais importantes */
+    --client-color-text-light: #f5f5f5; /* Quase branco, para textos em fundos escuros */
+
+    /* Mapeamento para as variáveis existentes, com os novos valores */
+    --color-primary-bg: var(--client-color-light); /* Fundo geral da página */
+    --color-secondary-text: var(--client-color-text-dark); /* Texto principal */
+    --color-accent: var(--client-color-secondary); /* Cor de destaque para botões, filtros ativos */
+    --color-border: rgba(114, 66, 56, 0.2); /* Borda sutil usando o marrom, mas transparente */
+    --color-header-bg: var(--client-color-primary); /* Fundo do cabeçalho */
+    --color-footer-bg: var(--client-color-primary); /* Fundo do rodapé */
+    --color-table-header-bg: var(--client-color-primary); /* Fundo do cabeçalho da tabela */
+    --color-pill-bg: var(--client-color-primary); /* Fundo das pills de filtro */
 }
+
 body {
     font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
@@ -23,17 +32,18 @@ body {
 }
 .site-header {
     background-color: var(--color-header-bg);
-    color: white;
+    color: var(--client-color-text-light); /* Texto do cabeçalho mais claro */
     padding: 20px 15px;
     text-align: center;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); /* Sombra mais pronunciada */
 }
 .site-header h1 {
     margin: 0 0 15px 0;
-    font-size: 1.5em;
+    font-size: 1.8em; /* Aumentar um pouco o título */
+    font-weight: 700;
 }
 .search-container {
     max-width: 600px;
@@ -43,31 +53,37 @@ body {
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px; /* Mais arredondado */
     font-size: 1em;
     box-sizing: border-box;
-    background-color: hsl(210, 10%, 25%);
-    color: white;
-    transition: box-shadow 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.2); /* Fundo do input mais transparente */
+    color: var(--client-color-text-light);
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
-.search-container input::placeholder { color: hsl(210, 5%, 60%); }
+.search-container input::placeholder { color: rgba(255, 255, 255, 0.6); }
 .search-container input:focus {
     outline: none;
+    background-color: rgba(0, 0, 0, 0.3); /* Um pouco mais escuro ao focar */
     box-shadow: 0 0 0 3px var(--color-accent);
 }
 #toggle-filters-btn {
-    background-color: var(--color-pill-bg);
+    background-color: var(--color-accent); /* Botão de filtro com a cor de destaque */
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 1em;
-    font-weight: 500;
+    padding: 12px 25px; /* Um pouco maior */
+    border-radius: 25px; /* Bem arredondado */
+    font-size: 1.05em;
+    font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 15px; /* Espaçamento */
+}
+#toggle-filters-btn:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 90%, black); /* Escurece um pouco no hover */
+    transform: translateY(-2px);
 }
 #toggle-filters-btn .arrow-icon {
     transition: transform 0.3s ease-in-out;
@@ -79,43 +95,44 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-in-out;
-    background-color: var(--color-header-bg);
+    background-color: var(--color-header-bg); /* Fundo dos filtros igual ao cabeçalho */
     will-change: max-height;
 }
 .collapsible-content.open {
     max-height: 500px;
 }
-/* NOVA REGRA PARA O WRAPPER */
 .collapsible-wrapper {
     padding-top: 20px;
+    padding-bottom: 5px; /* Ajuste para espaçamento */
 }
 .filter-group {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px; /* Gap um pouco menor */
     padding: 0 10px;
     margin-bottom: 15px;
 }
 .filter-pill {
-    padding: 8px 18px;
-    font-size: 0.95em;
+    padding: 10px 20px; /* Um pouco mais de padding */
+    font-size: 0.9em;
     font-weight: 500;
-    background-color: hsl(210, 10%, 50%);
-    color: white;
-    border: 1px solid transparent;
-    border-radius: 25px;
+    background-color: var(--color-pill-bg);
+    color: var(--client-color-text-light);
+    border: 1px solid var(--color-accent); /* Borda com a cor de destaque */
+    border-radius: 20px; /* Mais arredondado */
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
 }
 .filter-pill:hover {
-    background-color: hsl(210, 10%, 60%);
+    background-color: color-mix(in srgb, var(--color-pill-bg) 90%, black); /* Escurece no hover */
     transform: translateY(-2px);
 }
 .filter-pill.active {
     background-color: var(--color-accent);
+    border-color: var(--color-accent); /* Borda sólida com a cor de destaque */
     transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3); /* Sombra mais forte no ativo */
 }
 main {
     max-width: 1100px;
@@ -124,19 +141,19 @@ main {
 }
 .marca-container {
     margin-bottom: 40px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    padding: 15px;
+    background-color: white; /* Mantém o fundo branco para contraste */
+    border-radius: 12px; /* Mais arredondado */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Sombra mais suave e espalhada */
+    padding: 20px; /* Um pouco mais de padding */
     box-sizing: border-box;
 }
 .marca-titulo {
-    font-size: 2.5em;
-    color: var(--color-secondary-text);
-    border-bottom: 2px solid var(--color-border);
+    font-size: 2.2em; /* Ajuste no tamanho do título */
+    color: var(--client-color-primary); /* Título da marca com a cor escura principal */
+    border-bottom: 2px solid var(--color-accent); /* Linha de destaque com a cor de acento */
     padding-bottom: 15px;
     margin-top: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 25px; /* Espaçamento ajustado */
     font-weight: 700;
     text-align: left;
 }
@@ -146,79 +163,100 @@ table {
     border-spacing: 0;
     margin-bottom: 30px;
     overflow: hidden;
-    border-radius: 8px;
+    border-radius: 10px; /* Bordas da tabela arredondadas */
 }
 thead th {
     padding: 15px 20px;
-    border: none;
+    border: none; /* Remover bordas padrão */
     text-align: left;
     font-weight: 600;
-    color: white;
-    border-bottom: 1px solid hsl(210, 10%, 35%);
+    color: var(--client-color-text-light); /* Texto do cabeçalho da tabela */
+    /* border-bottom: 1px solid hsl(210, 10%, 35%); REMOVIDO */
 }
 .tipo-titulo {
     background-color: var(--color-table-header-bg);
-    font-size: 1.1em;
+    font-size: 1.2em; /* Um pouco maior */
     font-weight: bold;
     text-align: center;
+    border-bottom: 1px solid rgba(0,0,0,0.1); /* Separador sutil */
 }
 thead tr:nth-child(2) th {
-    background-color: hsl(210, 10%, 40%);
-    border-bottom: none;
+    background-color: color-mix(in srgb, var(--color-table-header-bg) 80%, black); /* Um tom um pouco mais escuro para os subtítulos */
+    border-bottom: 1px solid rgba(0,0,0,0.15); /* Separador sutil */
 }
 td {
     padding: 12px 20px;
-    border-bottom: 1px solid var(--color-border);
-    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border); /* Apenas linha inferior sutil */
+    /* border-right: 1px solid var(--color-border); REMOVIDO */
     text-align: left;
 }
 td:last-child { border-right: none; }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:nth-child(even) { background-color: var(--color-primary-bg); }
-tbody tr:hover { background-color: hsl(210, 10%, 92%); }
+tbody tr:nth-child(even) { background-color: var(--color-primary-bg); } /* Fundo da linha par */
+tbody tr:hover { background-color: color-mix(in srgb, var(--color-primary-bg) 90%, white); } /* Mais sutil no hover */
+
 .site-footer-info {
     background-color: var(--color-footer-bg);
-    color: hsl(210, 5%, 70%);
+    color: var(--client-color-text-light);
     padding: 40px 20px;
     text-align: center;
     margin-top: 60px;
-    font-size: 0.9em;
+    font-size: 0.95em; /* Ajuste no tamanho da fonte */
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Sombra para destacar o rodapé */
 }
 .site-footer-info h2 {
     color: white;
     margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 1.8em;
-    font-weight: 600;
+    margin-bottom: 15px; /* Espaçamento ajustado */
+    font-size: 2em; /* Um pouco maior */
+    font-weight: 700;
 }
 .site-footer-info p { margin: 8px 0; }
+
 .floating-button {
     position: fixed; width: 55px; height: 55px;
     border-radius: 50%; display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Sombra mais evidente */
     z-index: 1500; transition: transform 0.2s ease, opacity 0.3s ease;
-    color: white; 
+    color: white;
 }
-.floating-button:hover { transform: translateY(-3px); }
+.floating-button:hover { transform: translateY(-5px); } /* Efeito mais pronunciado no hover */
 .floating-button img, .floating-button svg {
-    width: 28px;
-    height: 28px;
+    width: 30px; /* Ícones um pouco maiores */
+    height: 30px;
 }
-.whatsapp { bottom: 25px; right: 25px; background-color: #25D366; }
+.whatsapp { bottom: 25px; right: 25px; background-color: #25D366; } /* Mantendo o verde do WhatsApp */
 .back-to-top { bottom: 95px; right: 25px; background-color: var(--color-table-header-bg); opacity: 0; visibility: hidden; }
 .back-to-top.visible { opacity: 1; visibility: visible; }
 
+/* Media Queries */
 @media (max-width: 768px) {
+    .site-header h1 { font-size: 1.6em; }
+    #toggle-filters-btn { padding: 10px 20px; font-size: 0.95em; }
+    .filter-pill { padding: 8px 15px; font-size: 0.85em; }
     main { padding: 0 10px; }
-    .marca-container { padding: 10px; }
-    .marca-titulo { font-size: 1.6em; }
-    table { font-size: 0.85em; }
-    thead th, td { padding: 10px 8px; }
-    .tipo-titulo { font-size: 1em; }
+    .marca-container { padding: 15px; }
+    .marca-titulo { font-size: 1.8em; }
+    table { font-size: 0.9em; }
+    thead th, td { padding: 10px 15px; }
+    .tipo-titulo { font-size: 1.1em; }
+    .site-footer-info h2 { font-size: 1.6em; }
+    .site-footer-info p { font-size: 0.85em; }
+    .floating-button { width: 50px; height: 50px; }
+    .floating-button img, .floating-button svg { width: 25px; height: 25px; }
 }
 @media (max-width: 480px) {
-    .marca-titulo { font-size: 1.4em; }
-    table { font-size: 0.75em; }
-    thead th, td { padding: 8px 6px; }
-    .tipo-titulo { font-size: 0.9em; }
+    .site-header h1 { font-size: 1.4em; margin-bottom: 10px; }
+    .search-container input { padding: 10px; font-size: 0.9em; }
+    #toggle-filters-btn { padding: 8px 18px; font-size: 0.9em; margin-top: 10px; }
+    .filter-group { gap: 6px; }
+    .filter-pill { padding: 6px 12px; font-size: 0.8em; }
+    .marca-titulo { font-size: 1.5em; margin-bottom: 20px; }
+    table { font-size: 0.8em; }
+    thead th, td { padding: 8px 10px; }
+    .tipo-titulo { font-size: 1em; }
+    .site-footer-info h2 { font-size: 1.4em; }
+    .floating-button { bottom: 15px; right: 15px; width: 45px; height: 45px; }
+    .floating-button.back-to-top { bottom: 75px; right: 15px; }
+    .floating-button img, .floating-button svg { width: 22px; height: 22px; }
 }
