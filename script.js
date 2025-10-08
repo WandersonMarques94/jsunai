@@ -1,4 +1,4 @@
-// VERSÃO COM AUTH0 - Diagnóstico Robusto
+// VERSÃO COM AUTH0 - Diagnóstico Robusto2
 
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
 
