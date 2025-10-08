@@ -1,7 +1,7 @@
 // VERSÃO COM AUTH0
 
 // URL da planilha continua a mesma, você disse que já editou
-const urlPlanilha = 'URL_DA_SUA_PLANILHA_AQUI';
+const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
 
 // --- CONFIGURAÇÃO DO AUTH0 ---
 const auth0Config = {
