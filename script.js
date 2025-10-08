@@ -5,7 +5,7 @@ const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mX
 // --- CONFIGURAÇÃO DO AUTH0 ---
 const auth0Config = {
     domain: "jsunai.us.auth0.com",
-    clientId: "SbMBiA_II_yA6qakjGUnoNMB8W4HZQsnNAdQp-__SATnkJWIW8ltNNBTsOG_ClJ1",
+    clientId: "TvTxOmzG7Z4kskPYGg4XVapGoKQ9eS1a",
     authorizationParams: {
         redirect_uri: window.location.origin
     }
