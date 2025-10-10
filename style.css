@@ -1,20 +1,24 @@
 :root {
-    /* NOVA PALETA DE CORES (TEMA ESCURO) */
-    --dark-bg: #121212; /* Um preto um pouco mais suave que #000 */
-    --card-bg: #1E1E1E; /* Fundo dos cards/blocos, um cinza bem escuro */
-    --primary-accent: #724238; /* Marrom escuro - para cabeçalhos, rodapé */
-    --secondary-accent: #e0c99f; /* Bege - para textos, botões e destaques */
-    --border-color: rgba(224, 201, 159, 0.2); /* Borda bege sutil */
+    /* Paleta Principal do Cliente */
+    --cor-dourado: #cea44e;
+    --cor-marrom: #905e3c;
+    --cor-branco-quente: #faf8f5; /* Minha sugestão de fundo */
+    --cor-texto-principal: #333333; /* Cinza escuro para texto da tabela */
+    --cor-texto-claro: #ffffff;
 
     /* Mapeamento para as variáveis do tema */
-    --color-primary-bg: var(--dark-bg);
-    --color-secondary-text: var(--secondary-accent);
-    --color-accent: var(--secondary-accent);
-    --color-border: var(--border-color);
-    --color-header-bg: var(--primary-accent);
-    --color-footer-bg: var(--primary-accent);
-    --color-table-header-bg: var(--primary-accent);
-    --color-pill-bg: rgba(224, 201, 159, 0.1); /* Fundo da pill inativa com baixa opacidade */
+    --color-primary-bg: var(--cor-branco-quente);         /* Fundo geral do site */
+    --color-secondary-text: var(--cor-texto-principal);  /* Texto principal das tabelas */
+    --color-accent: var(--cor-dourado);                  /* Cor de destaque para botões, links, etc. */
+    --color-border: rgba(206, 164, 78, 0.4);            /* Borda dourada sutil */
+    
+    /* Cabeçalho e Rodapé */
+    --color-header-bg: var(--cor-dourado);
+    --color-footer-bg: var(--cor-marrom);
+
+    /* Tabelas e Filtros */
+    --color-table-header-bg: var(--cor-marrom);          /* Fundo do "Tipo de Peça" */
+    --color-pill-bg: #ffffff;                            /* Fundo das 'pills' de filtro */
 }
 
 body {
