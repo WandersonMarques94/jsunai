@@ -1,29 +1,20 @@
 :root {
-    /* Paleta Principal do Cliente */
-    --cor-dourado: #cea44e;
-    --cor-marrom: #905e3c;
-    --cor-branco-quente: #faf8f5;
-    --cor-texto-principal: #333333;
+    /* NOVA PALETA DE CORES AJUSTADA */
+    --cor-fundo-suave: #fcfaf6;          /* Branco muito sutil com toque de creme */
+    --cor-texto-principal: #5c3a21;      /* Marrom café, escuro para ótima legibilidade */
+    --cor-destaque-dourado: #c5a04c;     /* Dourado mais ouro velho, para preços e botões */
+    --cor-base-neutra: #e9e4dd;          /* Bege acinzentado claro, para cabeçalho/rodapé */
+    --cor-borda-sutil: rgba(92, 58, 33, 0.1); /* Borda muito suave do marrom */
+    --cor-borda-dourada-sutil: rgba(197, 160, 76, 0.4); /* Borda dourada para containers */
+    --cor-hover-tabela: rgba(197, 160, 76, 0.08); /* Dourado muito suave para hover na tabela */
     --cor-texto-claro: #ffffff;
-
-    /* Mapeamento para as variáveis do tema */
-    --color-primary-bg: var(--cor-branco-quente);
-    --color-secondary-text: var(--cor-texto-principal);
-    --color-accent: var(--cor-dourado);
-    --color-border: rgba(206, 164, 78, 0.4);
-    
-    --color-header-bg: var(--cor-dourado);
-    --color-footer-bg: var(--cor-marrom);
-
-    --color-table-header-bg: var(--cor-marrom);
-    --color-pill-bg: #ffffff;
 }
 
 body {
-    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
-    background-color: var(--color-primary-bg);
-    color: var(--color-secondary-text);
+    background-color: var(--cor-fundo-suave);
+    color: var(--cor-texto-principal);
     line-height: 1.6;
 }
 
@@ -31,53 +22,126 @@ body {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(255, 255, 255, 0.9);
     display: flex; justify-content: center; align-items: center;
-    z-index: 2000; font-size: 1.5em; color: var(--cor-marrom);
+    z-index: 2000; font-size: 1.5em; color: var(--cor-texto-principal);
 }
 
-/* --- ESTILOS DE LOGIN (TEMA CLARO) --- */
+/* --- ESTILOS DE LOGIN (NOVO DESIGN MODERNO) --- */
 #app-content { display: none; }
 
 #login-prompt {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    text-align: center;
-    background-color: var(--color-primary-bg);
-    color: var(--cor-marrom);
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, var(--cor-fundo-suave) 0%, var(--cor-base-neutra) 50%, var(--cor-texto-principal) 100%);
+    color: var(--cor-texto-principal);
 }
+
 .login-box {
-    padding: 40px;
-    border-radius: 10px;
     background-color: white;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    border: 1px solid var(--color-border);
+    padding: 50px 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+    transform: translateY(0);
+    transition: transform 0.5s ease-out, box-shadow 0.3s ease;
+    border: 1px solid var(--cor-borda-sutil);
 }
-.login-box h1 { margin-top: 0; }
+
+.login-box:hover {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.login-logo {
+    margin-bottom: 30px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-logo img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.login-box h1 {
+    font-size: 2.2em;
+    color: var(--cor-texto-principal);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.login-box p {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 30px;
+}
+
 .login-button {
-    background-color: var(--cor-dourado);
-    color: var(--cor-marrom);
+    background-color: var(--cor-destaque-dourado);
+    color: var(--cor-texto-principal);
     border: none;
-    padding: 15px 30px;
-    border-radius: 8px;
-    font-size: 1.2em;
+    padding: 18px 40px;
+    border-radius: 30px;
+    font-size: 1.25em;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 5px 15px rgba(197, 160, 76, 0.4);
 }
-.login-button:hover { background-color: color-mix(in srgb, var(--cor-dourado) 90%, black); }
 
-/* --- FIM DOS ESTILOS DE LOGIN --- */
+.login-button:hover {
+    background-color: color-mix(in srgb, var(--cor-destaque-dourado) 85%, black);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(197, 160, 76, 0.6);
+}
 
+@keyframes fadeInSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#login-prompt.show {
+    animation: fadeInSlideUp 0.7s ease-out forwards;
+}
+
+@media (max-width: 600px) {
+    .login-box {
+        padding: 30px 20px;
+        margin: 0 15px;
+    }
+    .login-box h1 {
+        font-size: 1.8em;
+    }
+    .login-button {
+        padding: 15px 30px;
+        font-size: 1.1em;
+    }
+    .login-logo {
+        height: 60px;
+        margin-bottom: 20px;
+    }
+}
+
+/* --- ESTILOS DO SITE PRINCIPAL --- */
 .site-header {
-    background-color: var(--color-header-bg);
-    color: var(--cor-marrom);
+    background-color: var(--cor-base-neutra); /* Cor base neutra */
+    color: var(--cor-texto-principal);
     padding: 20px 15px;
     text-align: center;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .header-content {
@@ -88,6 +152,20 @@ body {
     margin: 0 auto;
     padding-bottom: 15px;
 }
+.header-logo {
+    height: 40px; /* Tamanho da logo no cabeçalho */
+    object-fit: contain;
+    margin-right: 15px;
+}
+.site-header h1 {
+    margin: 0;
+    font-size: 1.6em; /* Um pouco menor para caber com a logo */
+    text-align: left;
+    font-weight: 700;
+    display: flex; /* Para alinhar com a logo */
+    align-items: center;
+    gap: 10px;
+}
 
 #user-profile {
     display: flex;
@@ -96,8 +174,8 @@ body {
 }
 #user-profile p { margin: 0; font-weight: 500; }
 #btn-logout {
-    background-color: var(--cor-marrom);
-    color: white;
+    background-color: var(--cor-texto-principal); /* Marrom escuro */
+    color: var(--cor-texto-claro);
     border: none;
     padding: 8px 15px;
     border-radius: 5px;
@@ -106,96 +184,127 @@ body {
     transition: background-color 0.3s;
 }
 #btn-logout:hover {
-    background-color: color-mix(in srgb, var(--cor-marrom) 80%, black);
+    background-color: color-mix(in srgb, var(--cor-texto-principal) 80%, black);
 }
 
-.site-header h1 {
-    margin: 0;
-    font-size: 1.5em;
-    text-align: left;
-    font-weight: 700;
-}
 .search-container {
     max-width: 600px;
     margin: 0 auto 15px auto;
 }
 .search-container input {
-    width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
-    font-size: 1em; box-sizing: border-box; background-color: rgba(255,255,255,0.5);
-    color: var(--cor-marrom); transition: box-shadow 0.3s ease;
+    width: 100%; padding: 12px; border: 1px solid var(--cor-borda-sutil); border-radius: 8px;
+    font-size: 1em; box-sizing: border-box; background-color: var(--cor-fundo-suave);
+    color: var(--cor-texto-principal); transition: box-shadow 0.3s ease;
 }
-.search-container input::placeholder { color: color-mix(in srgb, var(--cor-marrom) 60%, white); }
+.search-container input::placeholder { color: color-mix(in srgb, var(--cor-texto-principal) 50%, white); }
 .search-container input:focus {
-    outline: none; box-shadow: 0 0 0 3px var(--cor-dourado);
+    outline: none; box-shadow: 0 0 0 3px var(--cor-destaque-dourado);
 }
 #toggle-filters-btn {
-    background-color: var(--cor-marrom); color: white; border: none; padding: 10px 20px;
+    background-color: var(--cor-texto-principal); /* Marrom escuro */
+    color: var(--cor-texto-claro);
+    border: none; padding: 10px 20px;
     border-radius: 8px; font-size: 1em; font-weight: 500; cursor: pointer;
     display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.3s ease;
 }
-#toggle-filters-btn .arrow-icon { fill: white; transition: transform 0.3s ease-in-out; }
+#toggle-filters-btn .arrow-icon { fill: var(--cor-texto-claro); transition: transform 0.3s ease-in-out; }
 #toggle-filters-btn.open .arrow-icon { transform: rotate(180deg); }
 .collapsible-content {
     max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out;
-    background-color: color-mix(in srgb, var(--cor-dourado) 95%, black);
+    background-color: var(--cor-base-neutra);
+    padding-top: 0; /* Ajuste para ser zero quando fechado */
     will-change: max-height;
 }
-.collapsible-content.open { max-height: 500px; }
-.collapsible-wrapper { padding-top: 20px; }
+.collapsible-content.open { 
+    max-height: 500px; /* Altura suficiente para mostrar os filtros */
+    padding-top: 20px; /* Adiciona padding quando aberto */
+}
+.collapsible-wrapper { padding: 0 10px; } /* Padding interno, não superior */
+
 .filter-group {
     display: flex; flex-wrap: wrap; justify-content: center;
     gap: 10px; padding: 0 10px; margin-bottom: 15px;
 }
 .filter-pill {
     padding: 8px 18px; font-size: 0.95em; font-weight: 500;
-    background-color: var(--color-pill-bg); color: var(--cor-marrom); border: 1px solid var(--cor-dourado);
+    background-color: var(--cor-fundo-suave); /* Fundo branco-quente */
+    color: var(--cor-texto-principal); /* Texto marrom */
+    border: 1px solid var(--cor-destaque-dourado); /* Borda dourada */
     border-radius: 25px; cursor: pointer; transition: all 0.2s ease;
 }
-.filter-pill:hover { background-color: var(--cor-branco-quente); transform: translateY(-2px); }
+.filter-pill:hover { background-color: var(--cor-base-neutra); transform: translateY(-2px); }
 .filter-pill.active {
-    background-color: var(--cor-dourado); color: var(--cor-marrom); font-weight: 600;
-    transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: var(--cor-destaque-dourado); /* Fundo dourado */
+    color: var(--cor-texto-principal); /* Texto marrom */
+    font-weight: 600;
+    transform: translateY(-1px); box-shadow: 0 2px 5px rgba(197, 160, 76, 0.3);
 }
-main { max-width: 1100px; margin: 30px auto; padding: 0 15px; }
+
+main { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
+
 .marca-container {
-    margin-bottom: 40px; background-color: white; border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(206, 164, 78, 0.25); 
-    border: 1px solid var(--color-border);
-    padding: 15px; box-sizing: border-box;
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 25px rgba(92, 58, 33, 0.1);
+    border: 1px solid var(--cor-borda-dourada-sutil);
+    overflow: hidden; /* Garante que a tabela não vaze */
 }
 .marca-titulo {
-    font-size: 2.5em; color: var(--cor-marrom); border-bottom: 2px solid var(--cor-dourado);
-    padding-bottom: 15px; margin-top: 10px; margin-bottom: 30px;
-    font-weight: 700; text-align: left;
+    font-size: 2em;
+    font-weight: 600;
+    color: var(--cor-texto-principal); /* Título da marca em marrom escuro */
+    padding: 20px 25px;
+    margin: 0;
+    border-bottom: 1px solid var(--cor-borda-dourada-sutil);
 }
 table {
-    width: 100%; border-collapse: separate; border-spacing: 0;
-    margin-bottom: 30px; overflow: hidden; border-radius: 8px;
+    width: 100%;
+    border-collapse: collapse;
 }
 thead th {
-    padding: 15px 20px; border: none; text-align: left;
+    padding: 12px 20px;
+    text-align: left;
     font-weight: 600;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 .tipo-titulo {
-    background-color: var(--color-table-header-bg); color: var(--cor-texto-claro);
-    font-size: 1.1em; font-weight: bold; text-align: center;
+    background-color: var(--cor-base-neutra); /* Fundo do tipo em bege neutro */
+    color: var(--cor-texto-principal); /* Texto do tipo em marrom */
+    font-size: 1.1em;
+    text-align: center;
+    padding: 15px 20px;
 }
-thead tr:nth-child(2) th { 
-    background-color: var(--cor-dourado); color: var(--cor-marrom); 
+thead tr:nth-child(2) th {
+    background-color: var(--cor-fundo-suave); /* Fundo das categorias em branco-quente */
+    color: var(--cor-texto-principal); /* Texto das categorias em marrom */
 }
 td {
-    padding: 12px 20px; border-bottom: 1px solid #eee;
-    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--cor-texto-principal);
+}
+/* Estilo para a coluna de preço */
+td:last-child {
+    font-weight: 600;
+    color: var(--cor-destaque-dourado); /* Preço em dourado */
 }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:nth-child(even) { background-color: var(--cor-branco-quente); }
-tbody tr:hover { background-color: color-mix(in srgb, var(--cor-dourado) 15%, white); }
+tbody tr:nth-child(even) { background-color: var(--cor-fundo-suave); } /* Linhas alternadas */
+tbody tr:hover {
+    background-color: var(--cor-hover-tabela); /* Hover sutil com dourado */
+}
 .site-footer-info {
-    background-color: var(--color-footer-bg); color: var(--cor-dourado);
+    background-color: var(--cor-base-neutra); /* Fundo do rodapé em bege neutro */
+    color: var(--cor-texto-principal); /* Texto do rodapé em marrom */
     padding: 40px 20px; text-align: center; margin-top: 60px; font-size: 0.9em;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
 }
 .site-footer-info h2 {
-    color: white; margin-top: 0; margin-bottom: 20px;
+    color: var(--cor-texto-principal); /* Título do rodapé em marrom */
+    margin-top: 0; margin-bottom: 20px;
     font-size: 1.8em; font-weight: 600;
 }
 .site-footer-info p { margin: 8px 0; }
@@ -209,24 +318,28 @@ tbody tr:hover { background-color: color-mix(in srgb, var(--cor-dourado) 15%, wh
 .floating-button img, .floating-button svg { width: 28px; height: 28px; }
 .whatsapp { bottom: 25px; right: 25px; background-color: #25D366; }
 .back-to-top {
-    bottom: 95px; right: 25px; background-color: var(--cor-marrom);
+    bottom: 95px; right: 25px; background-color: var(--cor-texto-principal); /* Marrom escuro */
     opacity: 0; visibility: hidden;
 }
 .back-to-top.visible { opacity: 1; visibility: visible; }
-.back-to-top:hover { background-color: color-mix(in srgb, var(--cor-marrom) 80%, black); }
+.back-to-top:hover { background-color: color-mix(in srgb, var(--cor-texto-principal) 80%, black); }
 
 @media (max-width: 768px) {
     .header-content { flex-direction: column; gap: 10px; }
+    .site-header h1 { font-size: 1.4em; }
+    .header-logo { height: 35px; }
     main { padding: 0 10px; }
-    .marca-container { padding: 10px; }
-    .marca-titulo { font-size: 1.6em; }
+    .marca-container { padding: 0; }
+    .marca-titulo { font-size: 1.6em; padding: 15px 20px; }
     table { font-size: 0.85em; }
     thead th, td { padding: 10px 8px; }
-    .tipo-titulo { font-size: 1em; }
+    .tipo-titulo { font-size: 1em; padding: 12px 15px; }
 }
 @media (max-width: 480px) {
-    .marca-titulo { font-size: 1.4em; }
+    .site-header h1 { font-size: 1.2em; }
+    .header-logo { height: 30px; }
+    .marca-titulo { font-size: 1.4em; padding: 12px 15px; }
     table { font-size: 0.75em; }
     thead th, td { padding: 8px 6px; }
-    .tipo-titulo { font-size: 0.9em; }
+    .tipo-titulo { font-size: 0.9em; padding: 10px 12px; }
 }

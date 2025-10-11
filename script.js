@@ -1,11 +1,14 @@
-// VERSÃO COM AUTH0 - FINAL E CORRIGIDA v3
+// VERSÃO FINAL COM MODO DE DESENVOLVIMENTO
 
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
 
-// --- CONFIGURAÇÃO DO AUTH0 (COM O CLIENT ID CORRETO) ---
+// DETECÇÃO DE MODO DE DESENVOLVIMENTO
+const isDevelopmentMode = window.location.protocol === 'file:';
+
+// --- CONFIGURAÇÃO DO AUTH0 ---
 const auth0Config = {
     domain: "jsunai.us.auth0.com",
-    clientId: "TvTxOmzG7Z4kskPYGg4XVapGoKQ9eS1a", // <-- CORRIGIDO
+    clientId: "TvTxOmzG7Z4kskPYGg4XVapGoKQ9eS1a",
     authorizationParams: {
         redirect_uri: window.location.href.split('?')[0].split('#')[0]
     }
@@ -20,21 +23,30 @@ let loginPrompt, appContent, btnLogin, btnLogout, userNameEl,
 // --- FLUXO PRINCIPAL ---
 window.addEventListener('load', async () => {
     initializeDOMElements();
-    
-    try {
-        auth0Client = await auth0.createAuth0Client(auth0Config);
 
-        if (location.search.includes("code=") && location.search.includes("state=")) {
-            await auth0Client.handleRedirectCallback();
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        await updateUI();
-
-    } catch (e) {
-        console.error("ERRO CRÍTICO NA INICIALIZAÇÃO DO AUTH0:", e);
-        loadingIndicator.innerHTML = '<p>Erro na autenticação. Verifique o console (F12) e as configurações do Auth0.</p>';
+    if (isDevelopmentMode) {
+        // PULA O LOGIN SE ESTIVER EM MODO DE DESENVOLVIMENTO
+        console.warn("MODO DE DESENVOLVIMENTO ATIVADO - LOGIN IGNORADO");
+        loginPrompt.style.display = 'none';
+        appContent.style.display = 'block';
         loadingIndicator.style.display = 'flex';
+        await carregarDados();
+        window.addEventListener('scroll', handleScroll);
+    } else {
+        // FLUXO NORMAL COM AUTH0
+        try {
+            auth0Client = await auth0.createAuth0Client(auth0Config);
+
+            if (location.search.includes("code=") && location.search.includes("state=")) {
+                await auth0Client.handleRedirectCallback();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            await updateUI();
+        } catch (e) {
+            console.error("ERRO CRÍTICO NA INICIALIZAÇÃO DO AUTH0:", e);
+            loadingIndicator.innerHTML = '<p>Erro na autenticação. Verifique o console (F12).</p>';
+            loadingIndicator.style.display = 'flex';
+        }
     }
 });
 
@@ -63,37 +75,39 @@ const updateUI = async () => {
         if (isAuthenticated) {
             loginPrompt.style.display = 'none';
             appContent.style.display = 'block';
-
             const user = await auth0Client.getUser();
             userNameEl.textContent = user.name || user.email;
-
             await carregarDados();
             window.addEventListener('scroll', handleScroll);
         } else {
             loginPrompt.style.display = 'flex';
             appContent.style.display = 'none';
             loadingIndicator.style.display = 'none';
+            // Adiciona classe para animação
+            document.getElementById('login-prompt').classList.add('show');
         }
     } catch (e) {
         console.error("ERRO ao atualizar UI:", e);
-        loadingIndicator.innerHTML = '<p>Ocorreu um erro ao verificar o estado de login.</p>';
     }
 };
 
-// --- FUNÇÕES DE LOGIN/LOGOUT ---
 const login = async () => {
-    await auth0Client.loginWithRedirect();
+    await auth0Client.loginWithRedirect({
+        authorizationParams: { ui_locales: 'pt' }
+    });
 };
 
 const logout = async () => {
     await auth0Client.logout({
-        logoutParams: {
-            returnTo: window.location.href.split('?')[0].split('#')[0]
-        }
+        logoutParams: { returnTo: window.location.href.split('?')[0].split('#')[0] }
     });
 };
 
-// --- CÓDIGO DA APLICAÇÃO (sem mudanças) ---
+// --- RESTANTE DO CÓDIGO (CARREGAMENTO E RENDERIZAÇÃO) ---
+async function carregarDados() { /* ...código original... */ }
+function processarDados(csvData) { /* ...código original... */ }
+// ... e assim por diante para todas as outras funções ...
+// (O restante do arquivo script.js não precisa mudar, apenas copie as funções abaixo se necessário)
 
 async function carregarDados() {
     loadingIndicator.style.display = 'flex';
@@ -108,7 +122,7 @@ async function carregarDados() {
         setupEventListeners();
     } catch (error) {
         console.error("ERRO CRÍTICO ao carregar dados da planilha:", error);
-        loadingIndicator.innerHTML = '<p>Ocorreu um erro ao carregar os dados da planilha. Verifique o link e as permissões de compartilhamento.</p>';
+        loadingIndicator.innerHTML = '<p>Ocorreu um erro ao carregar os dados. Verifique o link da planilha.</p>';
     }
 }
 
@@ -151,7 +165,7 @@ function renderizarPagina(itens) {
         tipos.forEach(tipo => {
             const table = document.createElement('table');
             table.dataset.tipo = tipo;
-            table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço (R$)</th></tr></thead><tbody>${porTipo[tipo].sort((a, b) => a.modelo.localeCompare(b.modelo)).map(item => `<tr><td>${item.modelo}</td><td>${item.detalhes}</td><td>${item.preco}</td></tr>`).join('')}</tbody>`;
+            table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço (R$)</th></tr></thead><tbody>${porTipo[tipo].sort((a, b) => a.modelo.localeCompare(b.modelo)).map(item => `<tr data-modelo="${item.modelo.toUpperCase()}" data-detalhes="${item.detalhes.toUpperCase()}"><td>${item.modelo}</td><td>${item.detalhes}</td><td>${item.preco}</td></tr>`).join('')}</tbody>`;
             marcaContainer.appendChild(table);
         });
         fragmentoLista.appendChild(marcaContainer);
