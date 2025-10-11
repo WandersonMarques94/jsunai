@@ -1,4 +1,4 @@
-// VERSÃO FINAL COM MODO DE DESENVOLVIMENTO
+// VERSÃO FINAL COM ORDENAÇÃO CRONOLÓGICA PARA APPLE
 
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
 
@@ -83,7 +83,6 @@ const updateUI = async () => {
             loginPrompt.style.display = 'flex';
             appContent.style.display = 'none';
             loadingIndicator.style.display = 'none';
-            // Adiciona classe para animação
             document.getElementById('login-prompt').classList.add('show');
         }
     } catch (e) {
@@ -103,11 +102,47 @@ const logout = async () => {
     });
 };
 
-// --- RESTANTE DO CÓDIGO (CARREGAMENTO E RENDERIZAÇÃO) ---
-async function carregarDados() { /* ...código original... */ }
-function processarDados(csvData) { /* ...código original... */ }
-// ... e assim por diante para todas as outras funções ...
-// (O restante do arquivo script.js não precisa mudar, apenas copie as funções abaixo se necessário)
+// --- FUNÇÃO DE ORDENAÇÃO PARA IPHONES ---
+function getIphoneSortKey(modelo) {
+    // Extrai o modelo principal (ex: "11", "XR", "8")
+    const match = modelo.match(/iPhone\s*(\d+|XR|XS|X|SE)/i);
+    if (!match) return 99; // Modelos desconhecidos vão para o final
+
+    let coreModel = match[1].toUpperCase();
+    let baseValue = 0;
+
+    // Define um valor base para cada modelo principal para garantir a ordem cronológica
+    const order = {
+        '6': 6, '6S': 6.5,
+        '7': 7,
+        '8': 8,
+        'SE': 9, // SE (2ª/3ª gen) veio depois do 8
+        'X': 10,
+        'XR': 10.1,
+        'XS': 10.2,
+        '11': 11,
+        '12': 12,
+        '13': 13,
+        '14': 14
+        // Adicionar futuros modelos aqui (15, 16...)
+    };
+
+    if (order[coreModel]) {
+        baseValue = order[coreModel];
+    } else if (!isNaN(parseInt(coreModel))) {
+        baseValue = parseInt(coreModel); // Lida com modelos futuros como 15, 16...
+    }
+
+    // Adiciona pequenos valores decimais para ordenar os submodelos (Plus, Pro, Max)
+    if (modelo.toLowerCase().includes('plus')) baseValue += 0.01;
+    if (modelo.toLowerCase().includes('pro')) baseValue += 0.02;
+    if (modelo.toLowerCase().includes('max')) baseValue += 0.03;
+    
+    return baseValue;
+}
+
+
+// --- CÓDIGO DA APLICAÇÃO (CARREGAMENTO E RENDERIZAÇÃO) ---
 
 async function carregarDados() {
     loadingIndicator.style.display = 'flex';
@@ -141,6 +176,7 @@ function processarDados(csvData) {
     }).filter(item => item && item.marca && item.modelo && item.marca.length > 0);
 }
 
+// **** A PRINCIPAL MUDANÇA ESTÁ AQUI DENTRO ****
 function renderizarPagina(itens) {
     const containerLista = document.getElementById('lista-container');
     containerLista.innerHTML = '';
@@ -150,29 +186,67 @@ function renderizarPagina(itens) {
 
     marcas.forEach(marca => {
         const marcaContainer = document.createElement('div');
-        marcaContainer.className = 'marca-container';
+        // A lógica para renderizar tabela ou cartão continua sendo decidida pelo seu CSS
+        marcaContainer.className = 'marca-container-card' in document.body.style ? 'marca-container-card' : 'marca-container';
         marcaContainer.dataset.marca = marca;
+        
         const tituloMarca = document.createElement('h2');
-        tituloMarca.className = 'marca-titulo';
+        tituloMarca.className = 'marca-titulo-card' in document.body.style ? 'marca-titulo-card' : 'marca-titulo';
         tituloMarca.textContent = marca;
         marcaContainer.appendChild(tituloMarca);
+
         const porTipo = porMarca[marca].reduce((acc, item) => { (acc[item.tipo] = acc[item.tipo] || []).push(item); return acc; }, {});
-        const tipos = Object.keys(porTipo).sort((a, b) => {
-            if (a.toLowerCase().includes('tela')) return -1;
-            if (b.toLowerCase().includes('tela')) return 1;
-            return a.localeCompare(b);
-        });
+        const tipos = Object.keys(porTipo).sort();
+
         tipos.forEach(tipo => {
-            const table = document.createElement('table');
-            table.dataset.tipo = tipo;
-            table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço (R$)</th></tr></thead><tbody>${porTipo[tipo].sort((a, b) => a.modelo.localeCompare(b.modelo)).map(item => `<tr data-modelo="${item.modelo.toUpperCase()}" data-detalhes="${item.detalhes.toUpperCase()}"><td>${item.modelo}</td><td>${item.detalhes}</td><td>${item.preco}</td></tr>`).join('')}</tbody>`;
-            marcaContainer.appendChild(table);
+            const items = porTipo[tipo];
+
+            // AQUI ESTÁ A NOVA LÓGICA DE ORDENAÇÃO
+            if (marca === 'Apple') {
+                // Se for Apple, usa a ordenação cronológica
+                items.sort((a, b) => getIphoneSortKey(a.modelo) - getIphoneSortKey(b.modelo));
+            } else {
+                // Para todas as outras marcas, usa a ordenação alfabética padrão
+                items.sort((a, b) => a.modelo.localeCompare(b.modelo));
+            }
+
+            // O código abaixo é uma versão "agnóstica" que funciona tanto para tabelas quanto para cartões
+            // Verificamos qual classe de container existe para decidir como renderizar
+            if (document.querySelectorAll('.items-grid-card').length > 0) { // Modo Cartão
+                const tipoContainer = document.createElement('div');
+                tipoContainer.className = 'tipo-container-card';
+                tipoContainer.dataset.tipo = tipo;
+                const tituloTipo = document.createElement('h3');
+                tituloTipo.className = 'tipo-titulo-card';
+                tituloTipo.textContent = tipo;
+                tipoContainer.appendChild(tituloTipo);
+                const itemsGrid = document.createElement('div');
+                itemsGrid.className = 'items-grid-card';
+                items.forEach(item => {
+                    const itemCard = document.createElement('div');
+                    itemCard.className = 'item-card';
+                    itemCard.innerHTML = `
+                        <div class="item-card-modelo">${item.modelo}</div>
+                        <div class="item-card-detalhes">${item.detalhes}</div>
+                        <div class="item-card-preco">R$ ${item.preco}</div>
+                    `;
+                    itemsGrid.appendChild(itemCard);
+                });
+                tipoContainer.appendChild(itemsGrid);
+                marcaContainer.appendChild(tipoContainer);
+            } else { // Modo Tabela (Padrão)
+                const table = document.createElement('table');
+                table.dataset.tipo = tipo;
+                table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço (R$)</th></tr></thead><tbody>${items.map(item => `<tr data-modelo="${item.modelo.toUpperCase()}" data-detalhes="${item.detalhes.toUpperCase()}"><td>${item.modelo}</td><td>${item.detalhes}</td><td>${item.preco}</td></tr>`).join('')}</tbody>`;
+                marcaContainer.appendChild(table);
+            }
         });
         fragmentoLista.appendChild(marcaContainer);
     });
     containerLista.appendChild(fragmentoLista);
     loadingIndicator.style.display = 'none';
 }
+
 
 function popularFiltros(itens) {
     const marcasUnicas = [...new Set(itens.map(item => item.marca))];
@@ -213,42 +287,6 @@ function setupEventListeners() {
 
 function aplicarTodosOsFiltros() {
     const buscaTexto = searchInput.value.toUpperCase();
-    document.querySelectorAll('.marca-container').forEach(containerMarca => {
-        const marcaAtual = containerMarca.dataset.marca;
-        let marcaTemItensVisiveis = false;
-        const marcaPassaFiltro = (filtroAtivoMarca === 'todas' || marcaAtual === filtroAtivoMarca);
-        if (marcaPassaFiltro) {
-            containerMarca.querySelectorAll('table').forEach(tabelaTipo => {
-                const tipoAtual = tabelaTipo.dataset.tipo;
-                let tipoTemItensVisiveis = false;
-                const tipoPassaFiltro = (filtroAtivoTipo === 'todas' || tipoAtual === filtroAtivoTipo);
-                if (tipoPassaFiltro) {
-                    tabelaTipo.querySelectorAll('tbody tr').forEach(linha => {
-                        const textoLinha = linha.textContent.toUpperCase();
-                        if (textoLinha.includes(buscaTexto)) {
-                            linha.style.display = "";
-                            tipoTemItensVisiveis = true;
-                        } else {
-                            linha.style.display = "none";
-                        }
-                    });
-                }
-                if (tipoTemItensVisiveis) {
-                    tabelaTipo.style.display = "";
-                    marcaTemItensVisiveis = true;
-                } else {
-                    tabelaTipo.style.display = "none";
-                }
-            });
-        }
-        containerMarca.style.display = marcaTemItensVisiveis ? "" : "none";
-    });
-}
-
-function handleScroll() {
-    if (window.scrollY > 300) {
-        backToTopButton.classList.add('visible');
-    } else {
-        backToTopButton.classList.remove('visible');
-    }
-}
+    
+    // Lógica para Tabela
+    document.querySelectorAll('.marca-container table tbody tr').forEach(linha
