@@ -165,17 +165,13 @@ function renderizarPagina(itens) {
         tipos.forEach(tipo => {
             const items = porTipo[tipo];
 
-            // **** LÓGICA DE ORDENAÇÃO SIMPLIFICADA E CORRIGIDA ****
             items.sort((a, b) => {
                 if (marca === 'Apple') {
-                    // Mantém a exceção para iPhones
                     return getIphoneSortKey(a.modelo) - getIphoneSortKey(b.modelo);
                 }
-                // Para todas as outras marcas, usa a ordenação natural que você sugeriu!
                 return a.modelo.localeCompare(b.modelo, undefined, { numeric: true, sensitivity: 'base' });
             });
 
-            // O código abaixo para renderizar a tabela permanece o mesmo
             const table = document.createElement('table');
             table.dataset.tipo = tipo;
             table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço (R$)</th></tr></thead><tbody>${items.map(item => `<tr data-modelo="${item.modelo.toUpperCase()}" data-detalhes="${item.detalhes.toUpperCase()}"><td>${item.modelo}</td><td>${item.detalhes}</td><td>${item.preco}</td></tr>`).join('')}</tbody>`;

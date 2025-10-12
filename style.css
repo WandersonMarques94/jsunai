@@ -1,5 +1,4 @@
 :root {
-    /* NOVA PALETA DE CORES AJUSTADA */
     --cor-fundo-suave: #fcfaf6;
     --cor-texto-principal: #5c3a21;
     --cor-destaque-dourado: #c5a04c;
@@ -18,30 +17,98 @@ body {
     line-height: 1.6;
 }
 
-/* --- ESTILOS DE LOGIN (COM LOGO MAIOR) --- */
+#loading-indicator {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(252, 250, 246, 0.9);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000; font-size: 1.5em; color: var(--cor-texto-principal);
+}
+
+#app-content { display: none; }
+
+#login-prompt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, #f0d8a8 0%, #d8b27f 50%, #905e3c 100%);
+    color: var(--cor-texto-principal);
+}
+
+.login-box {
+    background-color: white;
+    padding: 50px 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+    border: 1px solid var(--cor-borda-sutil);
+}
+
 .login-logo {
     margin-bottom: 30px;
-    height: 100px; /* Aumentado de 80px */
+    height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-/* ... (outros estilos de login permanecem os mesmos) ... */
 
+.login-logo img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
 
-/* --- ESTILOS DO SITE PRINCIPAL --- */
+.login-box h1 {
+    font-size: 2.2em;
+    color: var(--cor-texto-principal);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.login-box p {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.login-button {
+    background-color: var(--cor-destaque-dourado);
+    color: var(--cor-texto-principal);
+    border: none;
+    padding: 18px 40px;
+    border-radius: 30px;
+    font-size: 1.25em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 5px 15px rgba(197, 160, 76, 0.4);
+}
+
+.login-button:hover {
+    background-color: color-mix(in srgb, var(--cor-destaque-dourado) 85%, black);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(197, 160, 76, 0.6);
+}
+
 .site-header {
     background-color: var(--cor-base-neutra);
     color: var(--cor-texto-principal);
-    padding: 20px 15px;
+    padding: 15px;
     position: sticky;
     top: 0;
     z-index: 1000;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    /* Novo: Alinhamento central */
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 15px;
 }
 
 .header-content {
@@ -50,16 +117,14 @@ body {
     align-items: center;
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
-    padding-bottom: 20px;
 }
 .header-branding {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
 }
 .header-logo {
-    height: 80px; /* Dobrado de 40px */
+    height: 80px;
     object-fit: contain;
 }
 .site-header h1 {
@@ -68,27 +133,44 @@ body {
     font-weight: 700;
 }
 
-#user-profile { /* ... sem mudanças ... */ }
-#btn-logout { /* ... sem mudanças ... */ }
+#user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+#user-profile p { margin: 0; font-weight: 500; }
+#btn-logout {
+    background-color: var(--cor-texto-principal);
+    color: var(--cor-texto-claro);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+#btn-logout:hover {
+    background-color: color-mix(in srgb, var(--cor-texto-principal) 80%, black);
+}
 
 .search-container {
-    max-width: 600px;
+    max-width: 700px;
     width: 100%;
-    margin: 0 auto 15px auto;
-    position: relative; /* Para posicionar o ícone */
+    position: relative;
 }
 .search-icon {
     position: absolute;
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     color: var(--cor-destaque-dourado);
+    opacity: 0.6;
 }
 .search-container input {
     width: 100%;
-    padding: 12px 12px 12px 45px; /* Padding esquerdo para o ícone */
+    padding: 12px 12px 12px 50px;
     border: 1px solid var(--cor-borda-sutil);
     border-radius: 8px;
     font-size: 1em;
@@ -97,21 +179,161 @@ body {
     color: var(--cor-texto-principal);
     transition: box-shadow 0.3s ease;
 }
-/* ... (restante do CSS como na versão anterior, com a correção da animação) ... */
+.search-container input::placeholder { color: color-mix(in srgb, var(--cor-texto-principal) 60%, white); }
+.search-container input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--cor-borda-dourada-sutil);
+}
 
-/* Correção da Animação dos Filtros */
+#toggle-filters-btn {
+    background-color: var(--cor-texto-principal);
+    color: var(--cor-texto-claro);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+}
+#toggle-filters-btn .arrow-icon { fill: var(--cor-texto-claro); transition: transform 0.3s ease-in-out; }
+#toggle-filters-btn.open .arrow-icon { transform: rotate(180deg); }
+
 .collapsible-content {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s ease-in-out; /* Animação suave */
+    transition: max-height 0.4s ease-out;
     background-color: var(--cor-base-neutra);
-    width: 100%; /* Garante que o container ocupe a largura */
+    width: 100%;
     box-sizing: border-box;
 }
 .collapsible-content.open { 
-    max-height: 500px; /* Altura suficiente para mostrar os filtros */
+    max-height: 500px;
 }
 .collapsible-wrapper { 
-    padding: 20px 10px 5px 10px; /* Padding interno, não na div que anima */
+    padding: 20px 10px 5px 10px;
 }
-/* ... (restante de todo o CSS da versão de tabela ou de cartões que você preferir) ... */
+
+.filter-group {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 10px; padding: 0 10px; margin-bottom: 15px;
+}
+.filter-pill {
+    padding: 8px 18px; font-size: 0.95em; font-weight: 500;
+    background-color: var(--cor-fundo-suave);
+    color: var(--cor-texto-principal);
+    border: 1px solid var(--cor-destaque-dourado);
+    border-radius: 25px; cursor: pointer; transition: all 0.2s ease;
+}
+.filter-pill:hover { background-color: var(--cor-base-neutra); transform: translateY(-2px); }
+.filter-pill.active {
+    background-color: var(--cor-destaque-dourado);
+    color: var(--cor-texto-principal);
+    font-weight: 600;
+    transform: translateY(-1px); box-shadow: 0 2px 5px rgba(197, 160, 76, 0.3);
+}
+
+main { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
+
+.marca-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 25px rgba(92, 58, 33, 0.1);
+    border: 1px solid var(--cor-borda-dourada-sutil);
+    overflow: hidden;
+}
+.marca-titulo {
+    font-size: 2em;
+    font-weight: 600;
+    color: var(--cor-texto-principal);
+    padding: 20px 25px;
+    margin: 0;
+    border-bottom: 1px solid var(--cor-borda-dourada-sutil);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+thead th {
+    padding: 12px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.tipo-titulo {
+    background-color: var(--cor-base-neutra);
+    color: var(--cor-texto-principal);
+    font-size: 1.1em;
+    text-align: center;
+    padding: 15px 20px;
+}
+thead tr:nth-child(2) th {
+    background-color: var(--cor-fundo-suave);
+    color: var(--cor-texto-principal);
+}
+td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--cor-texto-principal);
+}
+td:last-child {
+    font-weight: 600;
+    color: var(--cor-destaque-dourado);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover {
+    background-color: var(--cor-hover-tabela);
+}
+.site-footer-info {
+    background-color: var(--cor-base-neutra);
+    color: var(--cor-texto-principal);
+    padding: 40px 20px; text-align: center; margin-top: 60px; font-size: 0.9em;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+}
+.site-footer-info h2 {
+    color: var(--cor-texto-principal);
+    margin-top: 0; margin-bottom: 20px;
+    font-size: 1.8em; font-weight: 600;
+}
+.site-footer-info p { margin: 8px 0; }
+.floating-button {
+    position: fixed; width: 55px; height: 55px; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25); z-index: 1500;
+    transition: transform 0.2s ease, opacity 0.3s ease; color: white;
+}
+.floating-button:hover { transform: translateY(-3px); }
+.floating-button img, .floating-button svg { width: 28px; height: 28px; }
+.whatsapp { bottom: 25px; right: 25px; background-color: #25D366; }
+.back-to-top {
+    bottom: 95px; right: 25px; background-color: var(--cor-texto-principal);
+    opacity: 0; visibility: hidden;
+}
+.back-to-top.visible { opacity: 1; visibility: visible; }
+.back-to-top:hover { background-color: color-mix(in srgb, var(--cor-texto-principal) 80%, black); }
+
+@media (max-width: 768px) {
+    .header-content { flex-direction: column; gap: 10px; }
+    .site-header h1 { font-size: 1.4em; }
+    .header-logo { height: 60px; }
+    main { padding: 0 10px; }
+    .marca-container { padding: 0; }
+    .marca-titulo { font-size: 1.6em; padding: 15px 20px; }
+    table { font-size: 0.85em; }
+    thead th, td { padding: 10px 8px; }
+    .tipo-titulo { font-size: 1em; padding: 12px 15px; }
+}
+@media (max-width: 480px) {
+    .site-header h1 { font-size: 1.2em; }
+    .header-logo { height: 50px; }
+    .marca-titulo { font-size: 1.4em; padding: 12px 15px; }
+    table { font-size: 0.75em; }
+    thead th, td { padding: 8px 6px; }
+    .tipo-titulo { font-size: 0.9em; padding: 10px 12px; }
+}
