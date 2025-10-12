@@ -54,7 +54,7 @@ body {
 }
 .login-logo {
     margin-bottom: 30px;
-    height: 200px;
+    height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -326,64 +326,47 @@ tbody tr:hover {
     margin: 8px 0;
 }
 .floating-button {
-    position: fixed;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: fixed; width: 55px; height: 55px; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     z-index: 1500;
     transition: transform 0.2s ease, opacity 0.3s ease;
     color: white;
 }
-.floating-button:hover {
-    transform: translateY(-3px);
-}
-.floating-button img,
-.floating-button svg {
-    width: 28px;
-    height: 28px;
-}
-.whatsapp {
-    bottom: 25px;
-    right: 25px;
-    background-color: #25D366;
-}
+.floating-button:hover { transform: translateY(-3px); }
+.floating-button img, .floating-button svg { width: 28px; height: 28px; }
+.whatsapp { bottom: 25px; right: 25px; background-color: #25D366; }
 .back-to-top {
-    bottom: 95px;
-    right: 25px;
-    background-color: var(--cor-texto-principal);
-    opacity: 0;
-    visibility: hidden;
+    bottom: 95px; right: 25px; background-color: var(--cor-texto-principal);
+    opacity: 0; visibility: hidden;
 }
-.back-to-top.visible {
-    opacity: 1;
-    visibility: visible;
-}
-.back-to-top:hover {
-    background-color: color-mix(in srgb, var(--cor-texto-principal) 80%, black);
-}
+.back-to-top.visible { opacity: 1; visibility: visible; }
+.back-to-top:hover { background-color: color-mix(in srgb, var(--cor-texto-principal) 80%, black); }
+
+/* --- REGRAS CORRIGIDAS PARA MOBILE --- */
 @media (max-width: 768px) {
+    .site-header {
+        padding: 10px 15px;
+    }
     .header-main {
         height: auto;
-        padding: 5px 0;
-        flex-wrap: wrap;
-        justify-content: center;
     }
-    .header-branding {
-        flex-grow: 1;
-        justify-content: center;
+    .header-logo {
+        height: 45px;
     }
-    #user-profile {
+    .site-header h1 {
+        font-size: 1.3em;
+    }
+    #user-profile p {
+        display: none; /* Esconde o nome do usuário em telas menores */
+    }
+    #btn-logout {
         font-size: 0.8em;
-        width: 100%;
-        justify-content: center;
-        margin-top: 10px;
     }
-    .site-header h1 { font-size: 1.3em; }
-    .header-logo { height: 45px; }
+    .header-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
     main { padding: 0 10px; }
     .marca-container { padding: 0; }
     .marca-titulo { font-size: 1.6em; padding: 15px 20px; }
@@ -393,7 +376,10 @@ tbody tr:hover {
 }
 @media (max-width: 480px) {
     .header-logo { height: 40px; }
-    .site-header h1 { font-size: 1.2em; }
+    .site-header h1 { font-size: 1.15em; }
+    .header-branding { gap: 10px; }
+    .search-container input { padding: 10px 15px 10px 45px; }
+    #toggle-filters-btn { padding: 10px 15px; font-size: 0.9em; }
     .marca-titulo { font-size: 1.4em; padding: 12px 15px; }
     table { font-size: 0.75em; }
     thead th, td { padding: 8px 6px; }
