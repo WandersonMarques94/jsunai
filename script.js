@@ -289,4 +289,65 @@ function aplicarTodosOsFiltros() {
     const buscaTexto = searchInput.value.toUpperCase();
     
     // Lógica para Tabela
-    document.querySelectorAll('.marca-container table tbody tr').forEach(linha
+    document.querySelectorAll('.marca-container table tbody tr').forEach(linha => {
+        const textoLinha = linha.textContent.toUpperCase();
+        const passaBusca = textoLinha.includes(buscaTexto);
+        const tipoContainer = linha.closest('table');
+        const marcaContainer = linha.closest('.marca-container');
+
+        const passaFiltroMarca = (filtroAtivoMarca === 'todas' || marcaContainer.dataset.marca === filtroAtivoMarca);
+        const passaFiltroTipo = (filtroAtivoTipo === 'todas' || tipoContainer.dataset.tipo === filtroAtivoTipo);
+        
+        linha.style.display = (passaBusca && passaFiltroMarca && passaFiltroTipo) ? "" : "none";
+    });
+
+    document.querySelectorAll('.marca-container').forEach(marcaContainer => {
+        let marcaVisivel = false;
+        marcaContainer.querySelectorAll('table').forEach(tabela => {
+            const linhasVisiveis = tabela.querySelectorAll('tbody tr[style*="display: \"\""]');
+            if (linhasVisiveis.length > 0) {
+                tabela.style.display = "";
+                marcaVisivel = true;
+            } else {
+                tabela.style.display = "none";
+            }
+        });
+        marcaContainer.style.display = marcaVisivel ? "" : "none";
+    });
+
+    // Lógica para Cartões
+    document.querySelectorAll('.item-card').forEach(card => {
+        const textoCard = card.textContent.toUpperCase();
+        const passaBusca = textoCard.includes(buscaTexto);
+        const tipoContainer = card.closest('.tipo-container-card');
+        const marcaContainer = card.closest('.marca-container-card');
+
+        const passaFiltroMarca = (filtroAtivoMarca === 'todas' || marcaContainer.dataset.marca === filtroAtivoMarca);
+        const passaFiltroTipo = (filtroAtivoTipo === 'todas' || tipoContainer.dataset.tipo === filtroAtivoTipo);
+        
+        card.style.display = (passaBusca && passaFiltroMarca && passaFiltroTipo) ? "flex" : "none";
+    });
+
+    document.querySelectorAll('.marca-container-card').forEach(marcaContainer => {
+        let marcaVisivel = false;
+        marcaContainer.querySelectorAll('.tipo-container-card').forEach(tipoContainer => {
+            const cardsVisiveis = tipoContainer.querySelectorAll('.item-card[style*="display: flex"]');
+            if (cardsVisiveis.length > 0) {
+                tipoContainer.style.display = "";
+                marcaVisivel = true;
+            } else {
+                tipoContainer.style.display = "none";
+            }
+        });
+        marcaContainer.style.display = marcaVisivel ? "" : "none";
+    });
+}
+
+
+function handleScroll() {
+    if (window.scrollY > 300) {
+        backToTopButton.classList.add('visible');
+    } else {
+        backToTopButton.classList.remove('visible');
+    }
+}
