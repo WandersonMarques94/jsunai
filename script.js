@@ -1,4 +1,4 @@
-// VERSÃO FINAL COM ORDENAÇÃO CRONOLÓGICA E FILTRO CORRIGIDO
+// VERSÃO FINAL COM ORDENAÇÃO NATURAL (ALFANUMÉRICA) CORRIGIDA
 
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
 
@@ -18,29 +18,20 @@ let loginPrompt, appContent, btnLogin, btnLogout, userNameEl,
     typeFiltersContainer, toggleFiltersBtn, collapsibleFilters,
     filtroAtivoMarca = 'todas', filtroAtivoTipo = 'todas';
 
-// MAPA DE ORDENAÇÃO CRONOLÓGICA (CORRIGIDO)
-const chronologicalSortMap = {
-    'G5': 1702, 'G5 PLUS': 1702.1, 'G5S PLUS': 1708, 'G6': 1804, 'G6 PLAY': 1804.1, 'G6 PLUS': 1804.2, 'E5': 1804.3, 'Z PLAY': 1609, 'Z2 PLAY': 1706, 'Z3 PLAY': 1806, 'ONE': 1808, 'G7 PLAY': 1902, 'G7': 1902.1, 'G7 POWER': 1902.2, 'G7 PLUS': 1902.3, 'ONE VISION': 1905, 'ONE ACTION': 1908, 'E6 PLAY': 1910, 'E6 PLUS': 1909, 'G8 PLAY': 1910.1, 'G8 PLUS': 1910.2, 'ONE MACRO': 1910.3, 'G8': 2003, 'G8 POWER': 2002, 'G8 POWER LITE': 2004, 'ONE FUSION': 2006, 'ONE FUSION PLUS': 2006.1, 'ONE HIPER': 1912, 'E6S': 2003.1, 'E6I': 2102, 'G9 PLAY': 2008, 'G9 PLUS': 2009, 'G9 POWER': 2011, 'E7 PLUS': 2009.1, 'E7': 2011.1, 'E7 POWER': 2102.1, 'G10': 2102.2, 'G30': 2102.3, 'G50': 2104, 'G20': 2104.1, 'G60': 2104.2, 'G60S': 2108, 'E20': 2109, 'E30': 2110, 'E40': 2110.1, 'G31': 2111, 'G41': 2111.1, 'G71': 2111.2, 'G22': 2203, 'E32': 2205, 'G42': 2206, 'G52': 2204, 'G62': 2206.1, 'G82': 2205.1, 'EDGE 30': 2204.1, 'EDGE 30 NEO': 2209, 'G13': 2301, 'G23': 2301.1, 'G53': 2301.2, 'G73': 2301.3, 'E13': 2301.4, 'G04': 2402, 'G04S': 2402.1, 'G14': 2308, 'G24': 2401, 'G34': 2312, 'G54': 2309, 'G84': 2309.1,
-};
-
-function getSortKey(marca, modelo) {
-    let modeloUpper = modelo.toUpperCase();
-    if (chronologicalSortMap[modeloUpper]) { return chronologicalSortMap[modeloUpper]; }
-    if (marca === 'Apple') {
-        const match = modelo.match(/iPhone\s*(\d+|XR|XS|X|SE)/i);
-        if (!match) return 9999;
-        let coreModel = match[1].toUpperCase();
-        const order = {'5S': 5, '6': 6, '6S': 6.5, '7': 7, '8': 8, 'SE': 9, 'X': 10, 'XR': 10.1, 'XS': 10.2, '11': 11, '12': 12, '13': 13, '14': 14 };
-        let baseValue = order[coreModel] || (parseInt(coreModel) * 1.0) || 9998;
-        if (modelo.toLowerCase().includes('plus')) baseValue += 0.01;
-        if (modelo.toLowerCase().includes('pro')) baseValue += 0.02;
-        if (modelo.toLowerCase().includes('max')) baseValue += 0.03;
-        return baseValue;
-    }
-    const match = modeloUpper.match(/(\d+)/);
-    if (match) { return 1000 + parseInt(match[1]); }
-    return 9999;
+// FUNÇÃO DE ORDENAÇÃO ESPECIAL (APENAS PARA IPHONES)
+function getIphoneSortKey(modelo) {
+    const match = modelo.match(/iPhone\s*(\d+|XR|XS|X|SE)/i);
+    if (!match) return 999;
+    let coreModel = match[1].toUpperCase();
+    const order = {'6': 6, '6S': 6.5, '7': 7, '8': 8, 'SE': 9, 'X': 10, 'XR': 10.1, 'XS': 10.2, '11': 11, '12': 12, '13': 13, '14': 14 };
+    let baseValue = order[coreModel] || parseInt(coreModel) || 998;
+    if (modelo.toLowerCase().includes('plus')) baseValue += 0.01;
+    if (modelo.toLowerCase().includes('pro')) baseValue += 0.02;
+    if (modelo.toLowerCase().includes('max')) baseValue += 0.03;
+    return baseValue;
 }
+
+// --- FLUXO PRINCIPAL E FUNÇÕES ---
 
 window.addEventListener('load', async () => {
     initializeDOMElements();
@@ -161,15 +152,18 @@ function renderizarPagina(itens) {
         const tipos = Object.keys(porTipo).sort();
         tipos.forEach(tipo => {
             const items = porTipo[tipo];
+            
+            // LÓGICA DE ORDENAÇÃO SIMPLIFICADA E CORRETA
             items.sort((a, b) => {
-                const keyA = getSortKey(marca, a.modelo);
-                const keyB = getSortKey(marca, b.modelo);
-                if (keyA !== keyB) { return keyA - keyB; }
-                return a.modelo.localeCompare(b.modelo);
+                if (marca === 'Apple') {
+                    return getIphoneSortKey(a.modelo) - getIphoneSortKey(b.modelo);
+                }
+                return a.modelo.localeCompare(b.modelo, 'pt-BR', { numeric: true, sensitivity: 'base' });
             });
+
             const table = document.createElement('table');
             table.dataset.tipo = tipo;
-            table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço (R$)</th></tr></thead><tbody>${items.map(item => `<tr data-modelo="${item.modelo.toUpperCase()}" data-detalhes="${item.detalhes.toUpperCase()}"><td>${item.modelo}</td><td>${item.detalhes}</td><td>${item.preco}</td></tr>`).join('')}</tbody>`;
+            table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço</th></tr></thead><tbody>${items.map(item => `<tr data-modelo="${item.modelo.toUpperCase()}" data-detalhes="${item.detalhes.toUpperCase()}"><td>${item.modelo}</td><td>${item.detalhes}</td><td>R$ ${item.preco}</td></tr>`).join('')}</tbody>`;
             marcaContainer.appendChild(table);
         });
         fragmentoLista.appendChild(marcaContainer);

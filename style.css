@@ -44,7 +44,7 @@ body {
 }
 .login-logo {
     margin-bottom: 30px;
-    height: 200px;
+    height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -99,17 +99,17 @@ body {
     gap: 15px;
 }
 .header-content {
-    display: flex;
-    justify-content: center; /* Centraliza o branding */
+    display: grid; /* Usando Grid para melhor controle */
+    grid-template-columns: auto 1fr auto; /* Logo | Título Centralizado | Perfil */
     align-items: center;
     width: 100%;
     max-width: 1200px;
-    position: relative;
 }
 .header-branding {
     display: flex;
     align-items: center;
     gap: 20px;
+    grid-column: 1; /* Alinha a logo à esquerda */
 }
 .header-logo {
     height: 80px;
@@ -119,15 +119,15 @@ body {
     margin: 0;
     font-size: 1.8em;
     font-weight: 700;
+    grid-column: 2; /* Ocupa o espaço central */
+    text-align: center; /* Centraliza o texto do título */
 }
 #user-profile {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
     display: flex;
     align-items: center;
     gap: 15px;
+    grid-column: 3; /* Alinha o perfil à direita */
+    justify-self: end; /* Garante que fique no canto direito */
 }
 #user-profile p { margin: 0; font-weight: 500; }
 #btn-logout {
@@ -354,18 +354,23 @@ tbody tr:hover {
 }
 @media (max-width: 768px) {
     .header-content {
-        flex-direction: column;
+        grid-template-columns: 1fr; /* Uma coluna para mobile */
         gap: 15px;
-        justify-content: center;
     }
     .header-branding {
-        order: 1; /* Centraliza a marca */
+        grid-column: 1;
+        justify-content: center; /* Centraliza a logo e o título em mobile */
+        text-align: center;
+    }
+    .site-header h1 {
+        grid-column: 1;
+        order: 2; /* Coloca o título abaixo da logo em mobile */
+        text-align: center;
     }
     #user-profile {
-        order: 2; /* Coloca o perfil abaixo */
-        position: static;
-        transform: none;
-        margin-top: 10px;
+        grid-column: 1;
+        order: 3; /* Coloca o perfil abaixo do título em mobile */
+        justify-content: center;
     }
     .site-header h1 { font-size: 1.4em; }
     .header-logo { height: 60px; }
