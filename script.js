@@ -1,7 +1,7 @@
 // --- CONFIGURAÇÕES GERAIS ---
 
 // Ligo/desligo o aviso de "lista desatualizada" aqui. (1 = LIGADO, 0 = DESLIGADO)
-const avisoAtivado = 0;
+const avisoAtivado = 1;
 
 // Link da minha planilha de preços.
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
