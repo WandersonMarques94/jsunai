@@ -69,11 +69,21 @@ function initializeDOMElements() {
 
 const updateUI = async () => {
     const isAuthenticated = await auth0Client.isAuthenticated();
+    console.log("1. Está autenticado?", isAuthenticated);
+
     if (isAuthenticated) {
         const user = await auth0Client.getUser();
-        // VERIFICA SE É ADMIN
-        isAdmin = emailsAdmins.includes(user.email);
-        iniciarApp(user.name || user.email);
+        console.log("2. Dados enviados pelo Auth0:", user);
+
+        // Verifica se o email veio e compara ignorando maiúsculas/minúsculas
+        if (user && user.email) {
+            isAdmin = emailsAdmins.some(adminEmail => adminEmail.toLowerCase() === user.email.toLowerCase());
+            console.log("3. É administrador?", isAdmin);
+        } else {
+            console.warn("ALERTA: O Auth0 não devolveu o email!");
+        }
+
+        iniciarApp(user.name || user.email || 'Administrador');
     } else {
         loginPrompt.style.display = 'flex';
         appContent.style.display = 'none';
