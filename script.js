@@ -16,7 +16,8 @@ const auth0Config = {
     domain: "jsunai.us.auth0.com",
     clientId: "TvTxOmzG7Z4kskPYGg4XVapGoKQ9eS1a",
     authorizationParams: {
-        redirect_uri: window.location.href.split('?')[0].split('#')[0]
+        redirect_uri: window.location.href.split('?')[0].split('#')[0],
+        scope: "openid profile email" // <-- ISTO É O QUE FALTAVA
     }
 };
 
