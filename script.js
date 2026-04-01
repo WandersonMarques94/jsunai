@@ -1,15 +1,17 @@
 // --- CONFIGURAÇÕES GERAIS ---
-
-// Ligo/desligo o aviso de "lista desatualizada" aqui. (1 = LIGADO, 0 = DESLIGADO)
-const avisoAtivado = 1;
-
-// Link da minha planilha de preços.
+const avisoAtivado = 0;
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
 
-// Modo DEV para pular o login em testes locais.
-const isDevelopmentMode = window.location.protocol === 'file:';
+// O SEU MOTOR GOOGLE APPS SCRIPT
+const urlAPI = 'https://script.google.com/macros/s/AKfycbye3jwTZx_4JmG98bmgyf8EsGAOZ4opvRrPdGSPATmKMEFNjiAxToS4CO8KXcpG-JVXNQ/exec';
 
-// Minha config do Auth0.
+// LISTA DE EMAILS ADMINISTRADORES (Quem pode editar os preços)
+// Coloque aqui o seu email de testes e o email do dono da loja
+const emailsAdmins = ['desbloqueiounai@gmail.com', 'wandersonmv@live.com', 'samuel_unai22@icloud.com'];
+let isAdmin = false; 
+let modoEdicao = false; // Controla se o modal está a criar ou editar
+
+const isDevelopmentMode = window.location.protocol === 'file:';
 const auth0Config = {
     domain: "jsunai.us.auth0.com",
     clientId: "TvTxOmzG7Z4kskPYGg4XVapGoKQ9eS1a",
@@ -25,22 +27,14 @@ let loginPrompt, appContent, btnLogin, btnLogout, userNameEl,
     typeFiltersContainer, toggleFiltersBtn, collapsibleFilters,
     filtroAtivoMarca = 'todas', filtroAtivoTipo = 'todas';
 
-
 // --- INICIALIZAÇÃO DA PÁGINA ---
-
 window.addEventListener('load', async () => {
     initializeDOMElements();
-
     if (isDevelopmentMode) {
-        // Se estou no meu PC, pulo o login.
-        console.warn("MODO DE DESENVOLVIMENTO ATIVADO");
-        loginPrompt.style.display = 'none';
-        appContent.style.display = 'block';
-        loadingIndicator.style.display = 'flex';
-        await carregarDados();
-        window.addEventListener('scroll', handleScroll);
+        console.warn("MODO DEV - ADMIN FORÇADO");
+        isAdmin = true; // Força admin localmente para si
+        iniciarApp("Administrador Local");
     } else {
-        // Se o site está online, executo o fluxo normal de login.
         try {
             auth0Client = await auth0.createAuth0Client(auth0Config);
             if (location.search.includes("code=") && location.search.includes("state=")) {
@@ -49,14 +43,11 @@ window.addEventListener('load', async () => {
             }
             await updateUI();
         } catch (e) {
-            console.error("ERRO NO AUTH0:", e);
+            console.error("ERRO AUTH0:", e);
             loadingIndicator.innerHTML = '<p>Erro na autenticação.</p>';
         }
     }
 });
-
-
-// --- LÓGICA DE AUTENTICAÇÃO E UI ---
 
 function initializeDOMElements() {
     loginPrompt = document.getElementById('login-prompt');
@@ -71,7 +62,6 @@ function initializeDOMElements() {
     typeFiltersContainer = document.getElementById('type-filters');
     toggleFiltersBtn = document.getElementById('toggle-filters-btn');
     collapsibleFilters = document.getElementById('collapsible-filters');
-    
     btnLogin.addEventListener('click', login);
     btnLogout.addEventListener('click', logout);
 }
@@ -79,37 +69,36 @@ function initializeDOMElements() {
 const updateUI = async () => {
     const isAuthenticated = await auth0Client.isAuthenticated();
     if (isAuthenticated) {
-        loginPrompt.style.display = 'none';
-        appContent.style.display = 'block';
         const user = await auth0Client.getUser();
-        userNameEl.textContent = user.name || user.email;
-        await carregarDados();
-        window.addEventListener('scroll', handleScroll);
+        // VERIFICA SE É ADMIN
+        isAdmin = emailsAdmins.includes(user.email);
+        iniciarApp(user.name || user.email);
     } else {
         loginPrompt.style.display = 'flex';
         appContent.style.display = 'none';
         loadingIndicator.style.display = 'none';
-        document.getElementById('login-prompt').classList.add('show');
     }
 };
 
-const login = async () => {
-    await auth0Client.loginWithRedirect({ authorizationParams: { ui_locales: 'pt' } });
-};
+async function iniciarApp(nomeUtilizador) {
+    loginPrompt.style.display = 'none';
+    appContent.style.display = 'block';
+    userNameEl.textContent = nomeUtilizador;
+    
+    // Mostra botão de adicionar se for Admin
+    if(isAdmin) document.getElementById('btn-add-peca').style.display = 'block';
+    
+    await carregarDados();
+    window.addEventListener('scroll', handleScroll);
+}
 
-const logout = async () => {
-    await auth0Client.logout({ logoutParams: { returnTo: window.location.href.split('?')[0].split('#')[0] } });
-};
+const login = async () => { await auth0Client.loginWithRedirect({ authorizationParams: { ui_locales: 'pt' } }); };
+const logout = async () => { await auth0Client.logout({ logoutParams: { returnTo: window.location.href.split('?')[0].split('#')[0] } }); };
 
-
-// --- LÓGICA DE DADOS E RENDERIZAÇÃO ---
-
+// --- LÓGICA DE DADOS (LER DA PLANILHA) ---
 async function carregarDados() {
-    if (avisoAtivado === 1 && !isDevelopmentMode) {
-        document.getElementById('update-banner').style.display = 'block';
-    }
     loadingIndicator.style.display = 'flex';
-    loadingIndicator.querySelector('p').textContent = 'Carregando lista de preços...';
+    loadingIndicator.querySelector('p').textContent = 'A carregar catálogo...';
     try {
         const response = await fetch(urlPlanilha);
         if (!response.ok) throw new Error(`Erro na rede: ${response.status}`);
@@ -120,12 +109,11 @@ async function carregarDados() {
         setupEventListeners();
     } catch (error) {
         console.error("ERRO AO CARREGAR DADOS:", error);
-        loadingIndicator.innerHTML = '<p>Ocorreu um erro ao carregar os dados.</p>';
     }
 }
 
 function processarDados(csvData) {
-    const linhas = csvData.trim().split(/\r?\n/).slice(1); // Pula o cabeçalho
+    const linhas = csvData.trim().split(/\r?\n/).slice(1);
     return linhas.map(linha => {
         const colunas = linha.split(',');
         if (colunas.length < 5) return null;
@@ -136,7 +124,7 @@ function processarDados(csvData) {
             detalhes: colunas[3]?.trim() || '',
             preco: colunas[4]?.trim() || '0'
         };
-    }).filter(item => item && item.marca && item.modelo);
+    }).filter(item => item && item.marca && item.tipo); 
 }
 
 function renderizarPagina(itens) {
@@ -149,28 +137,32 @@ function renderizarPagina(itens) {
         const marcaContainer = document.createElement('div');
         marcaContainer.className = 'marca-container';
         marcaContainer.dataset.marca = marca;
-        const tituloMarca = document.createElement('h2');
-        tituloMarca.className = 'marca-titulo';
-        tituloMarca.textContent = marca;
-        marcaContainer.appendChild(tituloMarca);
+        marcaContainer.innerHTML = `<h2 class="marca-titulo">${marca}</h2>`;
 
         const porTipo = porMarca[marca].reduce((acc, item) => { (acc[item.tipo] = acc[item.tipo] || []).push(item); return acc; }, {});
         const tipos = Object.keys(porTipo).sort();
 
         tipos.forEach(tipo => {
             const items = porTipo[tipo];
-            
-            // Lógica de ordenação: exceção para Apple, "natural" para os outros para corrigir o bug do G5 vs G10.
-            items.sort((a, b) => {
-                if (marca === 'Apple') {
-                    return getIphoneSortKey(a.modelo) - getIphoneSortKey(b.modelo);
-                }
-                return a.modelo.localeCompare(b.modelo, 'pt-BR', { numeric: true, sensitivity: 'base' });
-            });
+            items.sort((a, b) => a.modelo.localeCompare(b.modelo, 'pt-BR', { numeric: true, sensitivity: 'base' }));
 
+            // Se for Admin, adiciona coluna extra
+            const thAdmin = isAdmin ? `<th>Ações</th>` : '';
+            
             const table = document.createElement('table');
             table.dataset.tipo = tipo;
-            table.innerHTML = `<thead><tr><th colspan="3" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço</th></tr></thead><tbody>${items.map(item => `<tr><td>${item.modelo}</td><td>${item.detalhes}</td><td>R$ ${item.preco}</td></tr>`).join('')}</tbody>`;
+            let tbodyHtml = items.map(item => {
+                // Escapar aspas para não quebrar o HTML do botão
+                const esc = (str) => str.replace(/'/g, "\\'");
+                const acoesHtml = isAdmin ? `
+                    <td class="admin-acoes">
+                        <button class="btn-acao" onclick="abrirModalEditar('${esc(item.marca)}', '${esc(item.tipo)}', '${esc(item.modelo)}', '${esc(item.detalhes)}', '${item.preco}')">✏️</button>
+                        <button class="btn-acao" onclick="excluirItem('${esc(item.marca)}', '${esc(item.tipo)}', '${esc(item.modelo)}', '${esc(item.detalhes)}')">🗑️</button>
+                    </td>` : '';
+                return `<tr><td>${item.modelo}</td><td>${item.detalhes}</td><td>R$ ${item.preco}</td>${acoesHtml}</tr>`;
+            }).join('');
+
+            table.innerHTML = `<thead><tr><th colspan="${isAdmin ? 4 : 3}" class="tipo-titulo">${tipo}</th></tr><tr><th>Modelo</th><th>Detalhes / Qualidade</th><th>Preço</th>${thAdmin}</tr></thead><tbody>${tbodyHtml}</tbody>`;
             marcaContainer.appendChild(table);
         });
         containerLista.appendChild(marcaContainer);
@@ -178,23 +170,107 @@ function renderizarPagina(itens) {
     loadingIndicator.style.display = 'none';
 }
 
-// Exceção para iPhones, que não seguem ordem numérica simples (X, XR, XS, etc).
-function getIphoneSortKey(modelo) {
-    const match = modelo.match(/iPhone\s*(\d+|XR|XS|X|SE)/i);
-    if (!match) return 999;
-    let coreModel = match[1].toUpperCase();
-    const order = {'6': 6, '6S': 6.5, '7': 7, '8': 8, 'SE': 9, 'X': 10, 'XR': 10.1, 'XS': 10.2, '11': 11, '12': 12, '13': 13, '14': 14 };
-    let baseValue = order[coreModel] || parseInt(coreModel) || 998;
-    if (modelo.toLowerCase().includes('plus')) baseValue += 0.01;
-    if (modelo.toLowerCase().includes('pro')) baseValue += 0.02;
-    if (modelo.toLowerCase().includes('max')) baseValue += 0.03;
-    return baseValue;
+
+// --- LÓGICA DE GESTÃO DO ADMINISTRADOR (CRUD VIA API) ---
+
+function abrirModalCriar() {
+    modoEdicao = false;
+    document.getElementById('modal-title').textContent = "Adicionar Nova Peça";
+    document.getElementById('admin-form').reset();
+    document.getElementById('admin-modal').style.display = 'flex';
 }
 
+function abrirModalEditar(marca, tipo, modelo, detalhes, preco) {
+    modoEdicao = true;
+    document.getElementById('modal-title').textContent = "Editar Preço / Peça";
+    
+    // Guarda dados originais ocultos
+    document.getElementById('old-marca').value = marca;
+    document.getElementById('old-tipo').value = tipo;
+    document.getElementById('old-modelo').value = modelo;
+    document.getElementById('old-detalhes').value = detalhes;
 
-// --- FILTROS E EVENTOS ---
+    // Preenche para edição
+    document.getElementById('input-marca').value = marca;
+    document.getElementById('input-tipo').value = tipo;
+    document.getElementById('input-modelo').value = modelo;
+    document.getElementById('input-detalhes').value = detalhes;
+    document.getElementById('input-preco').value = preco;
 
+    document.getElementById('admin-modal').style.display = 'flex';
+}
+
+function fecharModal() {
+    document.getElementById('admin-modal').style.display = 'none';
+}
+
+// FUNÇÃO PARA ENVIAR DADOS (CRIAR E EDITAR)
+async function salvarItem(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btn-salvar-modal');
+    btn.disabled = true;
+    btn.textContent = "A Guardar na Nuvem...";
+
+    const payload = {
+        action: modoEdicao ? 'update' : 'create',
+        marca: document.getElementById('input-marca').value,
+        tipo: document.getElementById('input-tipo').value,
+        modelo: document.getElementById('input-modelo').value,
+        detalhes: document.getElementById('input-detalhes').value,
+        preco: document.getElementById('input-preco').value
+    };
+
+    if (modoEdicao) {
+        payload.old_marca = document.getElementById('old-marca').value;
+        payload.old_tipo = document.getElementById('old-tipo').value;
+        payload.old_modelo = document.getElementById('old-modelo').value;
+        payload.old_detalhes = document.getElementById('old-detalhes').value;
+    }
+
+    await enviarParaAPI(payload);
+    
+    fecharModal();
+    btn.disabled = false;
+    btn.textContent = "💾 Guardar Alterações";
+}
+
+// FUNÇÃO PARA APAGAR
+async function excluirItem(marca, tipo, modelo, detalhes) {
+    if(!confirm(`Tem a certeza que deseja apagar a peça: ${marca} ${modelo}?`)) return;
+    
+    loadingIndicator.querySelector('p').textContent = 'A remover peça...';
+    loadingIndicator.style.display = 'flex';
+
+    const payload = {
+        action: 'delete',
+        old_marca: marca, old_tipo: tipo, old_modelo: modelo, old_detalhes: detalhes
+    };
+
+    await enviarParaAPI(payload);
+}
+
+// COMUNICADOR SEGURO COM O GOOGLE SCRIPT
+async function enviarParaAPI(payload) {
+    try {
+        await fetch(urlAPI, {
+            method: 'POST',
+            mode: 'no-cors', // Evita bloqueios de segurança do browser
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        // Como o 'no-cors' não permite ler a resposta, esperamos 1 segundo para a Google processar
+        await new Promise(r => setTimeout(r, 1500));
+        await carregarDados(); // Recarrega a tabela atualizada
+    } catch (e) {
+        alert("Ocorreu um erro ao comunicar com a base de dados.");
+        console.error(e);
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+// --- FILTROS (MANTIDOS IGUAIS) ---
 function popularFiltros(itens) {
+    // Código inalterado...
     const marcasUnicas = [...new Set(itens.map(item => item.marca))];
     const marcas = ['todas', ...marcasUnicas.sort()];
     const tiposUnicos = [...new Set(itens.map(item => item.tipo))];
@@ -259,9 +335,6 @@ function aplicarTodosOsFiltros() {
 }
 
 function handleScroll() {
-    if (window.scrollY > 300) {
-        backToTopButton.classList.add('visible');
-    } else {
-        backToTopButton.classList.remove('visible');
-    }
+    if (window.scrollY > 300) { backToTopButton.classList.add('visible'); } 
+    else { backToTopButton.classList.remove('visible'); }
 }
