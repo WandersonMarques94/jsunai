@@ -68,7 +68,8 @@ const updateUI = async () => {
     if (isAuthenticated) {
         const user = await auth0Client.getUser();
         if (user && user.email) {
-            isAdmin = emailsAdmins.some(adminEmail => adminEmail.toLowerCase() === user.email.toLowerCase());
+            // Trim() remove espaços extras invisíveis que podem causar falha na comparação
+            isAdmin = emailsAdmins.some(adminEmail => adminEmail.trim().toLowerCase() === user.email.trim().toLowerCase());
         }
         iniciarApp(user.name || user.email || 'Admin');
     } else {
