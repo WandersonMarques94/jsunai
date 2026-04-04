@@ -102,11 +102,23 @@
 
                 <div class="form-group">
                     <label>Marca:</label>
-                    <input type="text" id="input-marca" placeholder="Ex: Samsung" required>
+                    <select id="input-marca" required>
+                        <option value="Samsung">Samsung</option>
+                        <option value="Apple">Apple</option>
+                        <option value="Motorola">Motorola</option>
+                        <option value="Xiaomi">Xiaomi</option>
+                        <option value="LG">LG</option>
+                        <option value="Outros">Outros</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Tipo:</label>
-                    <input type="text" id="input-tipo" placeholder="Ex: Tela ou Bateria" required>
+                    <select id="input-tipo" required>
+                        <option value="Tela">Tela</option>
+                        <option value="Bateria">Bateria</option>
+                        <option value="Tampa Traseira">Touch Screen</option>
+                        <option value="Conectores / Flex de Carga">Outros</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Modelo:</label>
@@ -121,7 +133,7 @@
                     <input type="number" id="input-preco" placeholder="Ex: 150" required>
                 </div>
                 
-                <button type="submit" id="btn-salvar-modal" class="btn-salvar">💾 Guardar Alterações</button>
+                <button type="submit" id="btn-salvar-modal" class="btn-salvar">Salvar Alterações</button>
             </form>
         </div>
     </div>

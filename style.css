@@ -391,15 +391,28 @@ tbody tr:hover {
     text-align: right;
     white-space: nowrap;
 }
+/* Estilo dos novos ícones minimalistas e dropdowns */
 .btn-acao {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.2em;
-    margin-left: 10px;
-    transition: transform 0.2s;
+    margin-left: 8px;
+    padding: 4px;
+    color: #666; /* Cinza chumbo limpo */
+    transition: color 0.2s, transform 0.2s;
 }
-.btn-acao:hover { transform: scale(1.2); }
+.btn-editar:hover { color: #007bff; transform: scale(1.1); } /* Azul ao passar o mouse */
+.btn-excluir:hover { color: #dc3545; transform: scale(1.1); } /* Vermelho ao passar o mouse */
+
+.form-group select { 
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    box-sizing: border-box; 
+    font-family: inherit; 
+    background: white;
+}
 
 .floating-admin-btn {
     position: fixed;

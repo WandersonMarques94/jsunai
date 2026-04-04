@@ -1,15 +1,15 @@
 // --- CONFIGURAÇÕES GERAIS ---
 const avisoAtivado = 0;
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mXe7dz6Acwn_hs_KWbY4gdLwzg6j190EkTNgI1xfLUiEWVWxzNNARAPlmMwUsO0NwDwEe0/pub?output=csv';
-
-// O SEU MOTOR GOOGLE APPS SCRIPT
 const urlAPI = 'https://script.google.com/macros/s/AKfycbye3jwTZx_4JmG98bmgyf8EsGAOZ4opvRrPdGSPATmKMEFNjiAxToS4CO8KXcpG-JVXNQ/exec';
 
-// LISTA DE EMAILS ADMINISTRADORES (Quem pode editar os preços)
-// Coloque aqui o seu email de testes e o email do dono da loja
-const emailsAdmins = ['desbloqueiounai@gmail.com', 'wandersonmv@live.com', 'samuel_unai22@icloud.com'];
+// LISTA DE EMAILS ADMINISTRADORES
+const emailsAdmins = ['wandersonmarques94@gmail.com'];
 let isAdmin = false; 
-let modoEdicao = false; // Controla se o modal está a criar ou editar
+let modoEdicao = false; 
+
+// NOVO: Array global para atualizar a tela instantaneamente
+let dadosCatalogo = []; 
 
 const isDevelopmentMode = window.location.protocol === 'file:';
 const auth0Config = {
@@ -17,24 +17,21 @@ const auth0Config = {
     clientId: "TvTxOmzG7Z4kskPYGg4XVapGoKQ9eS1a",
     authorizationParams: {
         redirect_uri: window.location.href.split('?')[0].split('#')[0],
-        scope: "openid profile email" // <-- ISTO É O QUE FALTAVA
+        scope: "openid profile email"
     }
 };
 
-// --- VARIÁVEIS GLOBAIS ---
 let auth0Client = null;
 let loginPrompt, appContent, btnLogin, btnLogout, userNameEl,
     loadingIndicator, backToTopButton, searchInput, brandFiltersContainer,
     typeFiltersContainer, toggleFiltersBtn, collapsibleFilters,
     filtroAtivoMarca = 'todas', filtroAtivoTipo = 'todas';
 
-// --- INICIALIZAÇÃO DA PÁGINA ---
 window.addEventListener('load', async () => {
     initializeDOMElements();
     if (isDevelopmentMode) {
-        console.warn("MODO DEV - ADMIN FORÇADO");
-        isAdmin = true; // Força admin localmente para si
-        iniciarApp("Administrador Local");
+        isAdmin = true; 
+        iniciarApp("Admin Local");
     } else {
         try {
             auth0Client = await auth0.createAuth0Client(auth0Config);
@@ -45,7 +42,6 @@ window.addEventListener('load', async () => {
             await updateUI();
         } catch (e) {
             console.error("ERRO AUTH0:", e);
-            loadingIndicator.innerHTML = '<p>Erro na autenticação.</p>';
         }
     }
 });
@@ -69,21 +65,12 @@ function initializeDOMElements() {
 
 const updateUI = async () => {
     const isAuthenticated = await auth0Client.isAuthenticated();
-    console.log("1. Está autenticado?", isAuthenticated);
-
     if (isAuthenticated) {
         const user = await auth0Client.getUser();
-        console.log("2. Dados enviados pelo Auth0:", user);
-
-        // Verifica se o email veio e compara ignorando maiúsculas/minúsculas
         if (user && user.email) {
             isAdmin = emailsAdmins.some(adminEmail => adminEmail.toLowerCase() === user.email.toLowerCase());
-            console.log("3. É administrador?", isAdmin);
-        } else {
-            console.warn("ALERTA: O Auth0 não devolveu o email!");
         }
-
-        iniciarApp(user.name || user.email || 'Administrador');
+        iniciarApp(user.name || user.email || 'Admin');
     } else {
         loginPrompt.style.display = 'flex';
         appContent.style.display = 'none';
@@ -96,7 +83,6 @@ async function iniciarApp(nomeUtilizador) {
     appContent.style.display = 'block';
     userNameEl.textContent = nomeUtilizador;
     
-    // Mostra botão de adicionar se for Admin
     if(isAdmin) document.getElementById('btn-add-peca').style.display = 'block';
     
     await carregarDados();
@@ -106,20 +92,17 @@ async function iniciarApp(nomeUtilizador) {
 const login = async () => { await auth0Client.loginWithRedirect({ authorizationParams: { ui_locales: 'pt' } }); };
 const logout = async () => { await auth0Client.logout({ logoutParams: { returnTo: window.location.href.split('?')[0].split('#')[0] } }); };
 
-// --- LÓGICA DE DADOS (LER DA PLANILHA) ---
 async function carregarDados() {
     loadingIndicator.style.display = 'flex';
-    loadingIndicator.querySelector('p').textContent = 'A carregar catálogo...';
     try {
         const response = await fetch(urlPlanilha);
-        if (!response.ok) throw new Error(`Erro na rede: ${response.status}`);
         const data = await response.text();
-        const itens = processarDados(data);
-        renderizarPagina(itens);
-        popularFiltros(itens);
+        dadosCatalogo = processarDados(data); // Guarda globalmente
+        renderizarPagina(dadosCatalogo);
+        popularFiltros(dadosCatalogo);
         setupEventListeners();
     } catch (error) {
-        console.error("ERRO AO CARREGAR DADOS:", error);
+        console.error("ERRO AO CARREGAR:", error);
     }
 }
 
@@ -157,18 +140,21 @@ function renderizarPagina(itens) {
             const items = porTipo[tipo];
             items.sort((a, b) => a.modelo.localeCompare(b.modelo, 'pt-BR', { numeric: true, sensitivity: 'base' }));
 
-            // Se for Admin, adiciona coluna extra
             const thAdmin = isAdmin ? `<th>Ações</th>` : '';
-            
             const table = document.createElement('table');
             table.dataset.tipo = tipo;
             let tbodyHtml = items.map(item => {
-                // Escapar aspas para não quebrar o HTML do botão
+                const esc = (str) => str.replace(/'/g, "\\'");
+                // Ícones SVG minimalistas
+            const iconEdit = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+            const iconDelete = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+
+            let tbodyHtml = items.map(item => {
                 const esc = (str) => str.replace(/'/g, "\\'");
                 const acoesHtml = isAdmin ? `
                     <td class="admin-acoes">
-                        <button class="btn-acao" onclick="abrirModalEditar('${esc(item.marca)}', '${esc(item.tipo)}', '${esc(item.modelo)}', '${esc(item.detalhes)}', '${item.preco}')">✏️</button>
-                        <button class="btn-acao" onclick="excluirItem('${esc(item.marca)}', '${esc(item.tipo)}', '${esc(item.modelo)}', '${esc(item.detalhes)}')">🗑️</button>
+                        <button class="btn-acao btn-editar" title="Editar" onclick="abrirModalEditar('${esc(item.marca)}', '${esc(item.tipo)}', '${esc(item.modelo)}', '${esc(item.detalhes)}', '${item.preco}')">${iconEdit}</button>
+                        <button class="btn-acao btn-excluir" title="Excluir" onclick="excluirItem('${esc(item.marca)}', '${esc(item.tipo)}', '${esc(item.modelo)}', '${esc(item.detalhes)}')">${iconDelete}</button>
                     </td>` : '';
                 return `<tr><td>${item.modelo}</td><td>${item.detalhes}</td><td>R$ ${item.preco}</td>${acoesHtml}</tr>`;
             }).join('');
@@ -181,9 +167,6 @@ function renderizarPagina(itens) {
     loadingIndicator.style.display = 'none';
 }
 
-
-// --- LÓGICA DE GESTÃO DO ADMINISTRADOR (CRUD VIA API) ---
-
 function abrirModalCriar() {
     modoEdicao = false;
     document.getElementById('modal-title').textContent = "Adicionar Nova Peça";
@@ -193,15 +176,12 @@ function abrirModalCriar() {
 
 function abrirModalEditar(marca, tipo, modelo, detalhes, preco) {
     modoEdicao = true;
-    document.getElementById('modal-title').textContent = "Editar Preço / Peça";
-    
-    // Guarda dados originais ocultos
+    document.getElementById('modal-title').textContent = "Editar Peça";
     document.getElementById('old-marca').value = marca;
     document.getElementById('old-tipo').value = tipo;
     document.getElementById('old-modelo').value = modelo;
     document.getElementById('old-detalhes').value = detalhes;
 
-    // Preenche para edição
     document.getElementById('input-marca').value = marca;
     document.getElementById('input-tipo').value = tipo;
     document.getElementById('input-modelo').value = modelo;
@@ -215,13 +195,10 @@ function fecharModal() {
     document.getElementById('admin-modal').style.display = 'none';
 }
 
-// FUNÇÃO PARA ENVIAR DADOS (CRIAR E EDITAR)
-async function salvarItem(event) {
+// MÁGICA DA ATUALIZAÇÃO INSTANTÂNEA
+function salvarItem(event) {
     event.preventDefault();
-    const btn = document.getElementById('btn-salvar-modal');
-    btn.disabled = true;
-    btn.textContent = "A Guardar na Nuvem...";
-
+    
     const payload = {
         action: modoEdicao ? 'update' : 'create',
         marca: document.getElementById('input-marca').value,
@@ -236,52 +213,49 @@ async function salvarItem(event) {
         payload.old_tipo = document.getElementById('old-tipo').value;
         payload.old_modelo = document.getElementById('old-modelo').value;
         payload.old_detalhes = document.getElementById('old-detalhes').value;
+
+        // Atualiza a lista na tela instantaneamente
+        const index = dadosCatalogo.findIndex(i => i.marca === payload.old_marca && i.tipo === payload.old_tipo && i.modelo === payload.old_modelo && i.detalhes === payload.old_detalhes);
+        if(index !== -1) {
+            dadosCatalogo[index] = { marca: payload.marca, tipo: payload.tipo, modelo: payload.modelo, detalhes: payload.detalhes, preco: payload.preco };
+        }
+    } else {
+        dadosCatalogo.push({ marca: payload.marca, tipo: payload.tipo, modelo: payload.modelo, detalhes: payload.detalhes, preco: payload.preco });
     }
 
-    await enviarParaAPI(payload);
+    renderizarPagina(dadosCatalogo);
+    aplicarTodosOsFiltros();
+    fecharModal(); // Fecha a tela na mesma hora!
+
+    // Envia para o Google em segundo plano (sem travar o site)
+    enviarParaAPI(payload);
+}
+
+function excluirItem(marca, tipo, modelo, detalhes) {
+    if(!confirm(`Excluir peça: ${marca} ${modelo}?`)) return;
     
-    fecharModal();
-    btn.disabled = false;
-    btn.textContent = "💾 Guardar Alterações";
+    // Remove da tela instantaneamente
+    dadosCatalogo = dadosCatalogo.filter(i => !(i.marca === marca && i.tipo === tipo && i.modelo === modelo && i.detalhes === detalhes));
+    renderizarPagina(dadosCatalogo);
+    aplicarTodosOsFiltros();
+
+    // Avisa o Google em segundo plano
+    enviarParaAPI({ action: 'delete', old_marca: marca, old_tipo: tipo, old_modelo: modelo, old_detalhes: detalhes });
 }
 
-// FUNÇÃO PARA APAGAR
-async function excluirItem(marca, tipo, modelo, detalhes) {
-    if(!confirm(`Tem a certeza que deseja apagar a peça: ${marca} ${modelo}?`)) return;
-    
-    loadingIndicator.querySelector('p').textContent = 'A remover peça...';
-    loadingIndicator.style.display = 'flex';
-
-    const payload = {
-        action: 'delete',
-        old_marca: marca, old_tipo: tipo, old_modelo: modelo, old_detalhes: detalhes
-    };
-
-    await enviarParaAPI(payload);
+// O POST agora é "Silencioso" e "Seguro contra fechamento de aba"
+function enviarParaAPI(payload) {
+    fetch(urlAPI, {
+        method: 'POST',
+        mode: 'no-cors',
+        keepalive: true, // Garante o envio mesmo se fechar o site na mesma hora!
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    }).catch(e => console.error("Erro invisível de rede:", e));
 }
 
-// COMUNICADOR SEGURO COM O GOOGLE SCRIPT
-async function enviarParaAPI(payload) {
-    try {
-        await fetch(urlAPI, {
-            method: 'POST',
-            mode: 'no-cors', // Evita bloqueios de segurança do browser
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-        });
-        // Como o 'no-cors' não permite ler a resposta, esperamos 1 segundo para a Google processar
-        await new Promise(r => setTimeout(r, 1500));
-        await carregarDados(); // Recarrega a tabela atualizada
-    } catch (e) {
-        alert("Ocorreu um erro ao comunicar com a base de dados.");
-        console.error(e);
-        loadingIndicator.style.display = 'none';
-    }
-}
-
-// --- FILTROS (MANTIDOS IGUAIS) ---
+// --- FILTROS MANTIDOS IGUAIS ---
 function popularFiltros(itens) {
-    // Código inalterado...
     const marcasUnicas = [...new Set(itens.map(item => item.marca))];
     const marcas = ['todas', ...marcasUnicas.sort()];
     const tiposUnicos = [...new Set(itens.map(item => item.tipo))];
