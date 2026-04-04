@@ -4,7 +4,7 @@ const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mX
 const urlAPI = 'https://script.google.com/macros/s/AKfycbye3jwTZx_4JmG98bmgyf8EsGAOZ4opvRrPdGSPATmKMEFNjiAxToS4CO8KXcpG-JVXNQ/exec';
 
 // LISTA DE EMAILS ADMINISTRADORES
-const emailsAdmins = ['wandersonmarques94@gmail.com'];
+const emailsAdmins = ['desbloqueiounai@gmail.com', 'wandersonmv@live.com', 'samuel_unai22@icloud.com'];
 let isAdmin = false; 
 let modoEdicao = false; 
 
