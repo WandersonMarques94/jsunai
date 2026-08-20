@@ -4,7 +4,7 @@ const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQn8t8Uk0mX
 const urlAPI = 'https://script.google.com/macros/s/AKfycbye3jwTZx_4JmG98bmgyf8EsGAOZ4opvRrPdGSPATmKMEFNjiAxToS4CO8KXcpG-JVXNQ/exec';
 
 // LISTA DE EMAILS ADMINISTRADORES
-const emailsAdmins = ['desbloqueiounai@gmail.com', 'wandersonmv@live.com', 'samuel_unai22@icloud.com'];
+const emailsAdmins = ['wandersonmv@live.com'];
 let isAdmin = false; 
 let modoEdicao = false; 
 
@@ -15,6 +15,7 @@ const isDevelopmentMode = window.location.protocol === 'file:';
 const auth0Config = {
     domain: "jsunai.us.auth0.com",
     clientId: "TvTxOmzG7Z4kskPYGg4XVapGoKQ9eS1a",
+    cacheLocation: 'localstorage', // <-- LINHA QUE MANTÉM LOGADO!
     authorizationParams: {
         redirect_uri: window.location.href.split('?')[0].split('#')[0],
         scope: "openid profile email"
